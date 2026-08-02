@@ -298,10 +298,10 @@ footer{min-height:300px;grid-template-columns:1.2fr 2fr 2fr 1.35fr;align-content
   .material-copy,.material-image{align-self:center;margin-top:0;margin-bottom:0}
 }
 
-/* Header mark: crop around the real mark, then lift its blue value against black. */
-.brand-mark{width:132px;height:48px;display:block;overflow:hidden}
-.brand-mark img{width:180px;height:120px;transform:translate(-27px,-24px);filter:brightness(1.45) contrast(1.12) saturate(1.12) drop-shadow(0 0 8px rgba(121,184,255,.26));opacity:1}
+/* Exact OSSIUM source mark — cropped to its active composition for legibility. */
+.brand-mark{width:166px;height:62px;display:block;overflow:hidden}
+.brand-mark img{width:306px;height:204px;max-width:none;transform:translate(-70px,-54px);filter:brightness(1.24) contrast(1.1) saturate(1.06);opacity:1}
 @media(max-width:767px){
-  .brand-mark{width:112px;height:42px}
-  .brand-mark img{width:162px;height:108px;transform:translate(-24px,-22px)}
+  .brand-mark{width:136px;height:50px}
+  .brand-mark img{width:250px;height:167px;transform:translate(-57px,-44px)}
 }
