@@ -291,3 +291,9 @@ footer{min-height:300px;grid-template-columns:1.2fr 2fr 2fr 1.35fr;align-content
   .product-outro .intro-heading,.product-outro .spec-list{grid-column:5/-1;width:100%}
   .product-outro .product-cta{grid-column:5/span 3;margin-left:0}
 }
+
+/* Material record: copy and moving specimen share one clear center axis. */
+@media(min-width:768px){
+  .material{align-items:center}
+  .material-copy,.material-image{align-self:center;margin-top:0;margin-bottom:0}
+}
