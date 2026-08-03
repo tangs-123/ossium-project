@@ -245,8 +245,24 @@ trackedSections.forEach((section) => sectionObserver.observe(section));
 
 const inquiryForm = document.querySelector('#inquiry-form');
 const inquiryStatus = document.querySelector('#inquiry-status');
+async function copyInquiryMessage(message) {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(message);
+    return;
+  }
+  const helper = document.createElement('textarea');
+  helper.value = message;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  document.body.append(helper);
+  helper.select();
+  document.execCommand('copy');
+  helper.remove();
+}
+
 if (inquiryForm) {
-  inquiryForm.addEventListener('submit', (event) => {
+  inquiryForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!inquiryForm.checkValidity()) {
       inquiryForm.reportValidity();
@@ -263,10 +279,16 @@ if (inquiryForm) {
       'Message:',
       values.get('message') || '',
     ].join('\n');
-    const recipient = 'zjsxmfhf2rl@gmail.com';
-    const subject = `[OSSIUM Inquiry] ${name}`;
-    inquiryStatus.textContent = '이메일 작성 창을 엽니다.';
-    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const instagramWindow = window.open('https://www.instagram.com/ossiuum/', '_blank', 'noopener');
+    try {
+      await copyInquiryMessage(body);
+      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 열린 인스타그램에서 DM에 붙여넣어 보내주세요.';
+    } catch {
+      inquiryStatus.textContent = '인스타그램 프로필을 열었습니다. 작성 내용을 직접 복사해 DM으로 보내주세요.';
+    }
+    if (!instagramWindow) {
+      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
+    }
   });
 }
 
