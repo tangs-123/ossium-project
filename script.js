@@ -102,11 +102,14 @@ function seekToScrollFrame(film) {
 }
 
 scrollFilms.forEach((film) => {
-  film.video.addEventListener('loadedmetadata', () => {
+  const initialiseFilm = () => {
     film.duration = Number.isFinite(film.video.duration) ? film.video.duration : 0;
     film.video.pause();
     updateScrollState();
-  }, { once: true });
+  };
+  film.video.addEventListener('loadedmetadata', initialiseFilm, { once: true });
+  film.video.addEventListener('canplay', initialiseFilm, { once: true });
+  if (film.video.readyState >= HTMLMediaElement.HAVE_METADATA) initialiseFilm();
   film.video.addEventListener('seeked', () => {
     film.isSeeking = false;
     requestFilmSeek(film);
