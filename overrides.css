@@ -577,3 +577,23 @@ select{
 /* The DM action stays legible without forcing a line break on narrow screens. */
 .inquiry-submit{font-size:clamp(28px,2.7vw,46px);letter-spacing:-.055em}
 @media (max-width:767px){.inquiry-submit{font-size:clamp(28px,8.7vw,38px);letter-spacing:-.045em}}
+
+/* Usability pass: preserve orientation, visible focus and direct feedback. */
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:96px}
+a,button,input,textarea,select{touch-action:manipulation}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #e5f06e;outline-offset:4px}
+.site-header a:active,.menu-toggle:active,.product-cta:active,.outline-link:active,.archive-all-link:active{opacity:.72}
+.inquiry-form>label:has(input[required])>span::after,.inquiry-form>label:has(textarea[required])>span::after{content:" *";color:#a7c2ff}
+.inquiry-form [aria-invalid="true"]{box-shadow:inset 0 -2px 0 #ff8279!important}
+.inquiry-submit:disabled{cursor:wait;opacity:.72}
+.inquiry-submit.is-submitting span{animation:submit-pulse .65s ease-in-out infinite alternate}
+@keyframes submit-pulse{from{opacity:.4;transform:translateX(0)}to{opacity:1;transform:translateX(7px)}}
+@media (max-width:767px){
+  [id]{scroll-margin-top:80px}
+  .skip-link:focus{top:10px;left:12px}
+  .inquiry-form>label:not(.inquiry-consent){min-height:104px}
+  .inquiry-form input,.inquiry-form textarea{font-size:16px}
+  .inquiry-status{min-height:42px;line-height:1.5}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.inquiry-submit.is-submitting span{animation:none}}

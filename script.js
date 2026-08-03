@@ -278,9 +278,20 @@ async function copyInquiryMessage(message) {
 }
 
 if (inquiryForm) {
+  const inquirySubmit = inquiryForm.querySelector('.inquiry-submit');
+  const inquiryFields = inquiryForm.querySelectorAll('input[required], textarea[required]');
+  inquiryFields.forEach((field) => {
+    field.addEventListener('blur', () => {
+      field.setAttribute('aria-invalid', String(!field.validity.valid));
+    });
+    field.addEventListener('input', () => {
+      if (field.validity.valid) field.removeAttribute('aria-invalid');
+    });
+  });
   inquiryForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!inquiryForm.checkValidity()) {
+      inquiryStatus.textContent = '필수 항목을 확인해 주세요.';
       inquiryForm.reportValidity();
       return;
     }
@@ -295,6 +306,9 @@ if (inquiryForm) {
       'Message:',
       values.get('message') || '',
     ].join('\n');
+    inquirySubmit.disabled = true;
+    inquirySubmit.classList.add('is-submitting');
+    inquiryStatus.textContent = '문의 내용을 준비하고 있습니다.';
     const instagramWindow = window.open('https://www.instagram.com/ossiuum/', '_blank', 'noopener');
     try {
       await copyInquiryMessage(body);
@@ -305,6 +319,10 @@ if (inquiryForm) {
     if (!instagramWindow) {
       inquiryStatus.textContent = '문의 내용이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
     }
+    window.setTimeout(() => {
+      inquirySubmit.disabled = false;
+      inquirySubmit.classList.remove('is-submitting');
+    }, 500);
   });
 }
 
