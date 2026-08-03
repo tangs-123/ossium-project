@@ -5,6 +5,7 @@ const motionSection = document.querySelector('.motion-section');
 const motionSticky = document.querySelector('.motion-sticky');
 const motionSteps = document.querySelectorAll('.motion-steps li');
 const navLinks = document.querySelectorAll('.site-header nav a');
+const menuToggle = document.querySelector('.menu-toggle');
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const archiveDialog = document.querySelector('.archive-dialog');
 const archiveTriggers = document.querySelectorAll('.archive-trigger');
@@ -67,6 +68,21 @@ function updateScrollState() {
     motionSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === step));
   }
   scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
+}
+
+function setMobileMenu(open) {
+  if (!menuToggle) return;
+  header.classList.toggle('is-menu-open', open);
+  menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.querySelector('span').textContent = open ? 'CLOSE' : 'MENU';
+}
+
+if (menuToggle) {
+  menuToggle.addEventListener('click', () => setMobileMenu(!header.classList.contains('is-menu-open')));
+  navLinks.forEach((link) => link.addEventListener('click', () => setMobileMenu(false)));
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setMobileMenu(false);
+  });
 }
 
 function scrollProgress(section) {
