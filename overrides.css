@@ -315,6 +315,47 @@ footer{min-height:300px;grid-template-columns:1.2fr 2fr 2fr 1.35fr;align-content
   .brand-mark img{width:250px;height:167px;transform:translate(-57px,-44px)}
 }
 
+/* Keep the complete two-line 3D mark inside the header crop. */
+.site-header .brand-mark{
+  width:166px;
+  height:68px;
+  display:block;
+  overflow:hidden;
+}
+
+.site-header .brand-mark img{
+  display:block;
+  width:280px;
+  height:auto;
+  max-width:none;
+  transform:translate(-57px,-43px);
+  object-fit:contain;
+  mix-blend-mode:screen;
+  filter:brightness(1.28) contrast(1.08) saturate(1.08);
+}
+
+/* A single typeface keeps Korean and English information equally balanced. */
+html,
+body,
+button,
+input,
+textarea,
+select{
+  font-family:"Pretendard Variable","Pretendard",sans-serif !important;
+}
+
+@media (max-width: 767px){
+  .site-header .brand-mark{
+    width:128px;
+    height:56px;
+  }
+
+  .site-header .brand-mark img{
+    width:216px;
+    transform:translate(-44px,-33px);
+  }
+}
+
 /* Project inquiry — a compact editorial desk rather than a loose two-column form. */
 .inquiry{
   position:relative;
