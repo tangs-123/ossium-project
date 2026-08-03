@@ -305,3 +305,78 @@ footer{min-height:300px;grid-template-columns:1.2fr 2fr 2fr 1.35fr;align-content
   .brand-mark{width:136px;height:50px}
   .brand-mark img{width:250px;height:167px;transform:translate(-57px,-44px)}
 }
+
+/* Project inquiry — a compact editorial desk rather than a loose two-column form. */
+.inquiry{
+  position:relative;
+  isolation:isolate;
+  align-items:stretch;
+  gap:clamp(28px,4vw,68px);
+  min-height:0;
+  padding-top:clamp(80px,8vw,128px);
+  padding-bottom:clamp(80px,8vw,128px);
+  background:#16191f;
+}
+.inquiry::before{
+  content:"07 / PROJECT DESK";
+  position:absolute;
+  top:28px;
+  left:var(--grid-gutter);
+  color:#8490a2;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.14em;
+}
+.inquiry-heading{
+  grid-column:1 / span 4;
+  align-self:center;
+  padding:clamp(18px,2.5vw,40px) 0;
+}
+.inquiry-heading>p{margin-bottom:18px;color:#a7c2ff}
+.inquiry-heading h2{max-width:6.5ch;font-size:clamp(46px,5vw,80px);line-height:.86}
+.inquiry-heading>span{max-width:23ch;margin-top:26px;color:#c3cbd6;font-size:15px;line-height:1.68}
+.inquiry-form{
+  grid-column:6 / -1;
+  align-self:stretch;
+  grid-template-columns:1fr 1fr;
+  padding:0 clamp(18px,2.6vw,40px) clamp(18px,2.6vw,40px);
+  border:1px solid rgba(231,238,248,.2);
+  background:#11141a;
+}
+.inquiry-form::before{
+  content:"INQUIRY / 01";
+  grid-column:1 / -1;
+  padding:20px 0 17px;
+  border-bottom:1px solid rgba(231,238,248,.18);
+  color:#a7c2ff;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.14em;
+}
+.inquiry-form>label:not(.inquiry-consent){min-height:102px;padding-top:20px;padding-bottom:14px}
+.inquiry-form>label:nth-child(odd):not(.inquiry-message){padding-right:clamp(14px,2vw,30px)}
+.inquiry-form>label:nth-child(even):not(.inquiry-message){padding-left:clamp(14px,2vw,30px)}
+.inquiry-form input,.inquiry-form textarea{font-size:17px}
+.inquiry-message{min-height:154px!important;padding-top:23px!important;padding-bottom:18px!important}
+.inquiry-message textarea{min-height:82px}
+.inquiry-consent{min-height:64px;padding:14px 0;font-size:11px}
+.inquiry-submit{
+  min-height:104px;
+  padding:20px 22px;
+  background:#a7c2ff;
+  color:#090b0f;
+  font-size:clamp(34px,3.3vw,54px);
+}
+.inquiry-submit small{color:#202c45}
+.inquiry-submit:hover{background:#e8eefc;color:#090b0f}
+.inquiry-submit:hover small{color:#202c45}
+.inquiry-status{margin:10px 0 0;font-size:11px}
+@media(max-width:767px){
+  .inquiry{padding-top:86px;padding-bottom:64px}
+  .inquiry::before{top:24px}
+  .inquiry-heading{padding:0;margin-bottom:38px}
+  .inquiry-heading h2{max-width:7ch;font-size:clamp(46px,13.5vw,66px)}
+  .inquiry-form{display:grid;padding:0 20px 20px}
+  .inquiry-form::before{padding-top:17px}
+  .inquiry-submit{min-height:92px;font-size:42px}
+}
