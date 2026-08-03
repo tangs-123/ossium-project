@@ -23,8 +23,7 @@ const structureSteps = document.querySelectorAll('.structure-steps li');
   const structureSection = document.querySelector('.structure-scroll');
 
 function setColour(swatch) {
-  const isWhite = swatch.dataset.colour === 'white';
-  colour.classList.toggle('is-white', isWhite);
+  colour.dataset.colour = swatch.dataset.colour;
   swatches.forEach((item) => {
     const selected = item === swatch;
     item.classList.toggle('is-selected', selected);
