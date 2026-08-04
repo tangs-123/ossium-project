@@ -205,6 +205,42 @@ if (archiveDialog) {
   });
 }
 
+// The full technical records live in a focused archive window instead of extending the main scroll.
+const objectRecords = document.querySelector('#object-records');
+const archiveAllLinks = document.querySelectorAll('.archive-all-link');
+if (objectRecords && archiveAllLinks.length) {
+  const recordsDialog = document.createElement('dialog');
+  recordsDialog.className = 'records-dialog';
+  recordsDialog.setAttribute('aria-label', 'OSSIUM object records');
+
+  const closeButton = document.createElement('button');
+  closeButton.className = 'records-close';
+  closeButton.type = 'button';
+  closeButton.setAttribute('aria-label', 'Close object records');
+  closeButton.textContent = '×';
+
+  let lastTrigger = null;
+  objectRecords.classList.add('is-inview');
+  recordsDialog.append(closeButton, objectRecords);
+  document.body.append(recordsDialog);
+
+  const closeRecords = () => recordsDialog.close();
+  closeButton.addEventListener('click', closeRecords);
+  recordsDialog.addEventListener('click', (event) => {
+    if (event.target === recordsDialog) closeRecords();
+  });
+  recordsDialog.addEventListener('close', () => lastTrigger?.focus());
+
+  archiveAllLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      lastTrigger = link;
+      recordsDialog.showModal();
+      closeButton.focus();
+    });
+  });
+}
+
 document.documentElement.classList.add('js-enhanced');
 window.requestAnimationFrame(() => document.documentElement.classList.add('is-loaded'));
 pageSections.forEach((section) => {
