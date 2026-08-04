@@ -624,3 +624,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   visibility: visible;
   transform: scale(1);
 }
+
+/* Keep the colour comparison to one isolated product state at a time. */
+.colour-product:not(.is-active) {
+  display: none !important;
+}
+
+.colour[data-colour="ice"],
+.colour[data-colour="teal"],
+.colour[data-colour="yellow"] {
+  background: #0a0d12;
+}
+
+.colour[data-colour="ice"] h2,
+.colour[data-colour="teal"] h2,
+.colour[data-colour="yellow"] h2 {
+  color: #e8eef7;
+}
