@@ -279,7 +279,7 @@ async function copyInquiryMessage(message) {
 
 if (inquiryForm) {
   const inquirySubmit = inquiryForm.querySelector('.inquiry-submit');
-  const inquiryFields = inquiryForm.querySelectorAll('input[required], textarea[required]');
+  const inquiryFields = inquiryForm.querySelectorAll('input[required], select[required], textarea[required]');
   inquiryFields.forEach((field) => {
     field.addEventListener('blur', () => {
       field.setAttribute('aria-invalid', String(!field.validity.valid));
@@ -296,28 +296,32 @@ if (inquiryForm) {
       return;
     }
     const values = new FormData(inquiryForm);
-    const name = values.get('name') || 'OSSIUM visitor';
+    const name = values.get('name') || 'OSSIUM customer';
     const body = [
-      `Name: ${name}`,
-      `Email: ${values.get('email') || ''}`,
-      `Phone: ${values.get('phone') || ''}`,
-      `Country / City: ${values.get('location') || ''}`,
+      '[OSSIUM ORDER REQUEST]',
+      `Product: ${values.get('product') || ''}`,
+      `Colour: ${values.get('colour') || ''}`,
+      `Quantity: ${values.get('quantity') || '1'}`,
       '',
-      'Message:',
-      values.get('message') || '',
+      `Name: ${name}`,
+      `Phone: ${values.get('phone') || ''}`,
+      `Delivery area: ${values.get('location') || ''}`,
+      '',
+      'Order note:',
+      values.get('message') || '없음',
     ].join('\n');
     inquirySubmit.disabled = true;
     inquirySubmit.classList.add('is-submitting');
-    inquiryStatus.textContent = '문의 내용을 준비하고 있습니다.';
+    inquiryStatus.textContent = '주문 내용을 준비하고 있습니다.';
     const instagramWindow = window.open('https://www.instagram.com/ossiuum/', '_blank', 'noopener');
     try {
       await copyInquiryMessage(body);
-      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 열린 인스타그램에서 DM에 붙여넣어 보내주세요.';
+      inquiryStatus.textContent = '주문 양식이 복사되었습니다. 열린 인스타그램 DM에 붙여넣어 보내주세요.';
     } catch {
       inquiryStatus.textContent = '인스타그램 프로필을 열었습니다. 작성 내용을 직접 복사해 DM으로 보내주세요.';
     }
     if (!instagramWindow) {
-      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
+      inquiryStatus.textContent = '주문 양식이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
     }
     window.setTimeout(() => {
       inquirySubmit.disabled = false;
