@@ -641,3 +641,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .colour[data-colour="yellow"] h2 {
   color: #e8eef7;
 }
+
+/* Preserve the whale keychain's full silhouette while using more of its square frame. */
+@media (min-width: 768px) {
+  .object-detail .detail-image:has(img[alt="해양 골격 키체인"]) {
+    padding: 14px !important;
+  }
+
+  .object-detail .detail-image img[alt="해양 골격 키체인"] {
+    transform: scale(1.22) !important;
+    transform-origin: center;
+  }
+}
