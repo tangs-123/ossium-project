@@ -1,5 +1,6 @@
 const colour = document.querySelector('.colour');
 const swatches = document.querySelectorAll('.swatch');
+const colourProducts = document.querySelectorAll('.colour-product');
 const header = document.querySelector('.site-header');
 const motionSection = document.querySelector('.motion-section');
 const motionSticky = document.querySelector('.motion-sticky');
@@ -24,11 +25,18 @@ const structureSteps = document.querySelectorAll('.structure-steps li');
   const structureSection = document.querySelector('.structure-scroll');
 
 function setColour(swatch) {
-  colour.dataset.colour = swatch.dataset.colour;
+  if (!colour || !swatch) return;
+  const selectedColour = swatch.dataset.colour;
+  colour.dataset.colour = selectedColour;
   swatches.forEach((item) => {
     const selected = item === swatch;
     item.classList.toggle('is-selected', selected);
     item.setAttribute('aria-pressed', String(selected));
+  });
+  colourProducts.forEach((product) => {
+    const selected = product.classList.contains(`${selectedColour}-product`);
+    product.classList.toggle('is-active', selected);
+    product.setAttribute('aria-hidden', String(!selected));
   });
 }
 
@@ -43,6 +51,8 @@ swatches.forEach((swatch) => {
     setColour(swatches[next]);
   });
 });
+
+if (swatches.length) setColour(document.querySelector('.swatch.is-selected') || swatches[0]);
 
 function updateScrollState() {
   header.classList.toggle('is-scrolled', window.scrollY > 24);

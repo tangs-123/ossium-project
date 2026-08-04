@@ -612,3 +612,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .inquiry-form select:focus-visible{outline:2px solid #e5f06e;outline-offset:4px}
 .inquiry-form>label:has(select[required])>span::after{content:" *";color:#a7c2ff}
 @media(max-width:767px){.inquiry-form select{font-size:16px}}
+.colour-product:not(.is-active) {
+  opacity: 0 !important;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(.985);
+}
+
+.colour-product.is-active {
+  opacity: 1 !important;
+  visibility: visible;
+  transform: scale(1);
+}
