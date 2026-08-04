@@ -706,8 +706,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 
 .records-close:hover { background: var(--blue); color: #080a0d; }
 
+.anatomy-media .anatomy-cutout[src$="무제-1.png"] {
+  width: 108%;
+  max-height: min(66vh, 640px);
+  object-fit: contain;
+}
+
 @media (max-width: 767px) {
   .records-dialog { width: calc(100% - 16px); height: calc(100dvh - 16px); }
   .records-dialog .object-details { padding: 72px 20px 0 !important; }
   .records-dialog .object-detail { min-height: 0; }
+  .anatomy-media .anatomy-cutout[src$="무제-1.png"] { width: 122%; max-height: 420px; }
 }
