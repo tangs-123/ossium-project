@@ -15,14 +15,26 @@ const chapterTargets = [...chapterLinks].map((link) => document.getElementById(l
 const pageSections = document.querySelectorAll('main > section');
 const heroSection = document.querySelector('.hero');
 const structureSteps = document.querySelectorAll('.structure-steps li');
-  const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
+const colourImageSources = {
+  ice: 'output_이미지에셋/colour-ice.png',
+  teal: 'output_이미지에셋/colour-teal.png',
+  yellow: 'output_이미지에셋/colour-yellow.png',
+};
+
+Object.entries(colourImageSources).forEach(([colourName, source]) => {
+  const image = document.querySelector(`.${colourName}-product img`);
+  if (image) image.src = source;
+});
+
+const SCRUB_FRAME_RATE = 24;
+const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
   video,
-  section: video.closest('[data-scroll-section]') || video.closest('.motion-section'),
+  section: video.closest('[data-scroll-section], .structure-scroll, .motion-section'),
   duration: 0,
   targetTime: 0,
   isSeeking: false,
-  }));
-  const structureSection = document.querySelector('.structure-scroll');
+}));
+const structureSection = document.querySelector('.structure-scroll');
 
 function setColour(swatch) {
   if (!colour || !swatch) return;
@@ -104,7 +116,10 @@ function scrollProgress(section) {
 
 function scrubVideo(film, progress) {
   if (!film.duration) return;
-  film.targetTime = Math.min(film.duration - 0.04, Math.max(0, progress * film.duration));
+  const target = Math.min(film.duration - 0.05, Math.max(0, progress * film.duration));
+  // Work in display-sized frame steps. This avoids queueing many nearly identical
+  // decode requests while preserving a continuous forward and reverse scrub.
+  film.targetTime = Math.round(target * SCRUB_FRAME_RATE) / SCRUB_FRAME_RATE;
   requestFilmSeek(film);
 }
 
@@ -119,11 +134,13 @@ function requestFilmSeek(film) {
 function seekToScrollFrame(film) {
   if (film.isSeeking) return;
   const difference = film.targetTime - film.video.currentTime;
-  if (Math.abs(difference) < 0.014) return;
-  // Ease toward the requested frame. This keeps the film continuous while supporting reverse scroll.
-  const nextFrame = film.video.currentTime + difference * 0.22;
+  if (Math.abs(difference) < 1 / SCRUB_FRAME_RATE) return;
+
+  // Always decode the newest requested position. The former eased seek was
+  // intentionally delayed by several frames, which made the film look like it
+  // was lagging behind the scroll position.
   film.isSeeking = true;
-  film.video.currentTime = nextFrame;
+  film.video.currentTime = film.targetTime;
 }
 
 scrollFilms.forEach((film) => {
@@ -243,8 +260,34 @@ if (objectRecords && archiveAllLinks.length) {
 
 document.documentElement.classList.add('js-enhanced');
 window.requestAnimationFrame(() => document.documentElement.classList.add('is-loaded'));
+const appearSelectors = [
+  '.statement h2',
+  '.statement-note',
+  '.process-heading',
+  '.process-grid li',
+  '.anatomy-heading',
+  '.anatomy-notes',
+  '.product-intro .intro-heading',
+  '.product-intro .spec-list',
+  '.motion-heading',
+  '.motion-steps',
+  '.material-copy',
+  '.colour-title',
+  '.swatches',
+  '.objects-head',
+  '.object-card',
+  '.manifesto h2',
+  '.manifesto .outline-link',
+  '.inquiry-heading',
+  '.inquiry-form'
+];
+
 pageSections.forEach((section) => {
   [...section.children].forEach((item, index) => item.style.setProperty('--item-index', String(index)));
+  section.querySelectorAll(appearSelectors.join(',')).forEach((item, index) => {
+    item.classList.add('appear');
+    item.style.setProperty('--appear-index', String(index));
+  });
 });
 
 function updatePageProgress() {
