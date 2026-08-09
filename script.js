@@ -5,6 +5,7 @@ const header = document.querySelector('.site-header');
 const motionSection = document.querySelector('.motion-section');
 const motionSticky = document.querySelector('.motion-sticky');
 const motionSteps = document.querySelectorAll('.motion-steps li');
+const motionFilm = document.querySelector('.motion-film');
 const navLinks = document.querySelectorAll('.site-header nav a');
 const menuToggle = document.querySelector('.menu-toggle');
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -215,6 +216,20 @@ document.addEventListener('visibilitychange', () => {
 });
 
 syncCompactFilmPlayback();
+
+function syncMotionFilmStep() {
+  if (!motionFilm || !motionSticky || !motionSteps.length || !Number.isFinite(motionFilm.duration) || !motionFilm.duration) return;
+  const progress = Math.min(0.999, Math.max(0, motionFilm.currentTime / motionFilm.duration));
+  const step = Math.min(3, Math.floor(progress * 3) + 1);
+  motionSticky.dataset.step = String(step);
+  motionSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === step));
+}
+
+if (motionFilm) {
+  motionFilm.addEventListener('loadedmetadata', syncMotionFilmStep);
+  motionFilm.addEventListener('timeupdate', syncMotionFilmStep);
+  motionFilm.addEventListener('seeked', syncMotionFilmStep);
+}
 
 function syncAmbientVideoMotion() {
   document.querySelectorAll('video[autoplay]').forEach((video) => {
