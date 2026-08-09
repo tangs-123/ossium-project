@@ -1383,3 +1383,42 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   .inquiry-heading { grid-column: 1 / span 3; }
   .inquiry-form { grid-column: 4 / -1; }
 }
+
+/* Shared layout grid: 12 columns desktop, 8 tablet, 4 mobile. */
+:root {
+  --grid-columns: 12;
+  --grid-gutter: clamp(48px, 4.45vw, 64px);
+  --grid-gap: 24px;
+}
+
+.hero,
+.section-shell,
+.manifesto,
+footer {
+  padding-left: var(--grid-gutter) !important;
+  padding-right: var(--grid-gutter) !important;
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --grid-columns: 12;
+    --grid-gutter: max(128px, calc((100vw - 1664px) / 2));
+    --grid-gap: 32px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --grid-columns: 8;
+    --grid-gutter: 32px;
+    --grid-gap: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --grid-columns: 4;
+    --grid-gutter: 20px;
+    --grid-gap: 12px;
+  }
+}

@@ -15,17 +15,6 @@ const chapterTargets = [...chapterLinks].map((link) => document.getElementById(l
 const pageSections = document.querySelectorAll('main > section');
 const heroSection = document.querySelector('.hero');
 const structureSteps = document.querySelectorAll('.structure-steps li');
-const colourImageSources = {
-  ice: 'output_이미지에셋/colour-ice.png',
-  teal: 'output_이미지에셋/colour-teal.png',
-  yellow: 'output_이미지에셋/colour-yellow.png',
-};
-
-Object.entries(colourImageSources).forEach(([colourName, source]) => {
-  const image = document.querySelector(`.${colourName}-product img`);
-  if (image) image.src = source;
-});
-
 const SCRUB_FRAME_RATE = 24;
 const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
   video,
