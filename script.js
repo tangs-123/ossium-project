@@ -30,7 +30,7 @@ const pageSections = document.querySelectorAll('main > section');
 const heroSection = document.querySelector('.hero');
 const structureSteps = document.querySelectorAll('.structure-steps li');
 const SCRUB_FRAME_RATE = 24;
-const mobileFilmQuery = window.matchMedia('(max-width: 767px)');
+const compactPlaybackQuery = window.matchMedia('(max-width: 1023px)');
 const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
   video,
   section: video.closest('[data-scroll-section], .structure-scroll, .motion-section'),
@@ -93,7 +93,7 @@ function updateScrollState() {
     motionSticky.dataset.step = String(step);
     motionSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === step));
   }
-  if (!mobileFilmQuery.matches) {
+  if (!compactPlaybackQuery.matches) {
     scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
   }
 }
@@ -152,14 +152,17 @@ function seekToScrollFrame(film) {
 scrollFilms.forEach((film) => {
   const initialiseFilm = () => {
     film.duration = Number.isFinite(film.video.duration) ? film.video.duration : 0;
-    if (mobileFilmQuery.matches) {
-      film.video.muted = true;
-      film.video.playsInline = true;
+    film.video.muted = true;
+    film.video.playsInline = true;
+    film.video.preload = 'auto';
+    if (compactPlaybackQuery.matches) {
       film.video.autoplay = true;
       film.video.loop = true;
       film.video.play().catch(() => {});
       return;
     }
+    film.video.autoplay = false;
+    film.video.loop = false;
     film.video.pause();
     updateScrollState();
   };
@@ -172,13 +175,13 @@ scrollFilms.forEach((film) => {
   });
 });
 
-function refreshMobileFilmMode() {
+function syncCompactFilmPlayback() {
   scrollFilms.forEach((film) => {
-    if (mobileFilmQuery.matches) {
-      film.video.muted = true;
-      film.video.playsInline = true;
+    if (compactPlaybackQuery.matches) {
       film.video.autoplay = true;
       film.video.loop = true;
+      film.video.muted = true;
+      film.video.playsInline = true;
       if (film.video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) film.video.play().catch(() => {});
     } else {
       film.video.autoplay = false;
@@ -189,8 +192,8 @@ function refreshMobileFilmMode() {
   updateScrollState();
 }
 
-mobileFilmQuery.addEventListener('change', refreshMobileFilmMode);
-refreshMobileFilmMode();
+compactPlaybackQuery.addEventListener('change', syncCompactFilmPlayback);
+syncCompactFilmPlayback();
 
 function syncAmbientVideoMotion() {
   document.querySelectorAll('video[autoplay]').forEach((video) => {
