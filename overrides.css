@@ -1422,3 +1422,8 @@ footer {
     --grid-gap: 12px;
   }
 }
+
+/* Header and footer share the supplied white OSSIUM mark. */
+.brand-mark img {
+  filter: grayscale(1) brightness(0) invert(1);
+}
