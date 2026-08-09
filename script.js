@@ -1,17 +1,3 @@
-import brandMarkUrl from './OSSIUM_랜딩페이지_시안/로고.svg';
-import structurePosterUrl from './output_이미지에셋/제품 이미지및 영상/OSSIUM_맥세이프카드홀더_악어골격_01.png';
-import motionPosterUrl from './output_이미지에셋/제품 이미지및 영상/OSSIUM_키체인_해양골격_01.png';
-
-document.querySelectorAll('.brand-mark img').forEach((image) => {
-  image.src = brandMarkUrl;
-  image.removeAttribute('srcset');
-});
-
-const structurePoster = document.querySelector('.structure-media video');
-const motionPoster = document.querySelector('.motion-media video');
-if (structurePoster) structurePoster.poster = structurePosterUrl;
-if (motionPoster) motionPoster.poster = motionPosterUrl;
-
 const colour = document.querySelector('.colour');
 const swatches = document.querySelectorAll('.swatch');
 const colourProducts = document.querySelectorAll('.colour-product');
@@ -37,6 +23,7 @@ const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((v
   duration: 0,
   targetTime: 0,
   isSeeking: false,
+  isVisible: false,
 }));
 const structureSection = document.querySelector('.structure-scroll');
 
@@ -152,13 +139,9 @@ function seekToScrollFrame(film) {
 scrollFilms.forEach((film) => {
   const initialiseFilm = () => {
     film.duration = Number.isFinite(film.video.duration) ? film.video.duration : 0;
-    film.video.muted = true;
-    film.video.playsInline = true;
-    film.video.preload = 'auto';
     if (compactPlaybackQuery.matches) {
-      film.video.autoplay = true;
-      film.video.loop = true;
-      film.video.play().catch(() => {});
+      configureCompactFilm(film.video);
+      if (film.isVisible) playCompactFilm(film);
       return;
     }
     film.video.autoplay = false;
@@ -175,17 +158,36 @@ scrollFilms.forEach((film) => {
   });
 });
 
+function configureCompactFilm(video) {
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.autoplay = true;
+  video.loop = true;
+  video.preload = 'auto';
+  video.playbackRate = 1;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('autoplay', '');
+  video.setAttribute('loop', '');
+}
+
+function playCompactFilm(film) {
+  if (!compactPlaybackQuery.matches || reducedMotionQuery.matches || !film.isVisible) return;
+  configureCompactFilm(film.video);
+  film.video.play().catch(() => {});
+}
+
 function syncCompactFilmPlayback() {
   scrollFilms.forEach((film) => {
     if (compactPlaybackQuery.matches) {
-      film.video.autoplay = true;
-      film.video.loop = true;
-      film.video.muted = true;
-      film.video.playsInline = true;
-      if (film.video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) film.video.play().catch(() => {});
+      configureCompactFilm(film.video);
+      if (film.isVisible && film.video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) playCompactFilm(film);
     } else {
       film.video.autoplay = false;
       film.video.loop = false;
+      film.video.removeAttribute('autoplay');
+      film.video.removeAttribute('loop');
       film.video.pause();
     }
   });
@@ -193,6 +195,31 @@ function syncCompactFilmPlayback() {
 }
 
 compactPlaybackQuery.addEventListener('change', syncCompactFilmPlayback);
+
+const compactFilmObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    const film = scrollFilms.find((item) => item.section === entry.target);
+    if (!film) return;
+    film.isVisible = entry.isIntersecting;
+    if (compactPlaybackQuery.matches) {
+      if (entry.isIntersecting) playCompactFilm(film);
+      else film.video.pause();
+    }
+  });
+}, { threshold: 0.18 });
+
+scrollFilms.forEach((film) => {
+  if (film.section) compactFilmObserver.observe(film.section);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    scrollFilms.forEach((film) => film.video.pause());
+  } else {
+    syncCompactFilmPlayback();
+  }
+});
+
 syncCompactFilmPlayback();
 
 function syncAmbientVideoMotion() {
