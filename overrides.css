@@ -1468,3 +1468,36 @@ footer .brand-mark img {
     opacity: 1;
   }
 }
+
+/* Object records lock each text and image column to the shared outer grid lines. */
+@media (min-width: 1024px) {
+  .object-details {
+    padding-left: var(--grid-gutter) !important;
+    padding-right: var(--grid-gutter) !important;
+  }
+
+  .object-details .object-detail {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+  }
+
+  .object-details .object-detail > .detail-copy {
+    justify-self: start;
+    width: min(100%, 470px);
+    margin-left: 0;
+  }
+
+  .object-details .object-detail > .detail-image {
+    justify-self: end;
+    width: min(100%, 620px);
+    margin-right: 0;
+  }
+
+  .object-details .object-detail.is-reverse > .detail-copy {
+    justify-self: end;
+  }
+
+  .object-details .object-detail.is-reverse > .detail-image {
+    justify-self: start;
+  }
+}
