@@ -249,6 +249,12 @@ footer{min-height:300px;grid-template-columns:1.2fr 2fr 2fr 1.35fr;align-content
 
 .motion-media::after{display:none}.motion-rings{display:none}
 
+/* Motion study stays centered and visually fixed while the page scrolls. */
+.motion-media{align-self:center;justify-self:center;display:flex;align-items:center;justify-content:center;transform:none!important;transition:none!important}
+.motion-media .motion-film{display:block;object-position:center;transform:none!important;transition:none!important}
+@media(max-width:1023px){.motion-media{align-self:center;margin-inline:auto!important}.motion-media .motion-film{object-position:center}}
+
+
 /* Moray record: specimen leads from the left, with the reading column held on the right. */
 @media(min-width:1024px){
   .product-outro .intro-image{grid-column:1/span 6;grid-row:1/span 3;justify-self:start;width:100%;max-width:760px}

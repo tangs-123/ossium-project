@@ -74,12 +74,6 @@ function updateScrollState() {
       structureSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === stage));
     }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (motionSection) {
-    const progress = scrollProgress(motionSection);
-    const step = Math.min(3, Math.floor(progress * 3) + 1);
-    motionSticky.dataset.step = String(step);
-    motionSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === step));
-  }
   if (!compactPlaybackQuery.matches) {
     scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
   }
@@ -485,7 +479,7 @@ if (inquiryForm) {
 }
 
 // Product imagery responds to a precise pointer without making touch interactions dependent on hover.
-const reactiveMedia = document.querySelectorAll('.hero-product, .structure-media, .intro-image, .motion-media, .material-image, .anatomy-media, .detail-image, .object-card');
+const reactiveMedia = document.querySelectorAll('.hero-product, .structure-media, .intro-image, .material-image, .anatomy-media, .detail-image, .object-card');
 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
   reactiveMedia.forEach((media) => {
     media.classList.add('media-reactive');
