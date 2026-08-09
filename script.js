@@ -1,3 +1,10 @@
+import brandMarkUrl from './OSSIUM_랜딩페이지_시안/로고.svg';
+
+document.querySelectorAll('.brand-mark img').forEach((image) => {
+  image.src = brandMarkUrl;
+  image.removeAttribute('srcset');
+});
+
 const colour = document.querySelector('.colour');
 const swatches = document.querySelectorAll('.swatch');
 const colourProducts = document.querySelectorAll('.colour-product');
