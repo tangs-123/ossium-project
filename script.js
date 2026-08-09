@@ -30,6 +30,7 @@ const pageSections = document.querySelectorAll('main > section');
 const heroSection = document.querySelector('.hero');
 const structureSteps = document.querySelectorAll('.structure-steps li');
 const SCRUB_FRAME_RATE = 24;
+const mobileFilmQuery = window.matchMedia('(max-width: 767px)');
 const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
   video,
   section: video.closest('[data-scroll-section], .structure-scroll, .motion-section'),
@@ -92,7 +93,9 @@ function updateScrollState() {
     motionSticky.dataset.step = String(step);
     motionSteps.forEach((item, index) => item.classList.toggle('is-active', index + 1 === step));
   }
-  scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
+  if (!mobileFilmQuery.matches) {
+    scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
+  }
 }
 
 function setMobileMenu(open) {
@@ -149,6 +152,14 @@ function seekToScrollFrame(film) {
 scrollFilms.forEach((film) => {
   const initialiseFilm = () => {
     film.duration = Number.isFinite(film.video.duration) ? film.video.duration : 0;
+    if (mobileFilmQuery.matches) {
+      film.video.muted = true;
+      film.video.playsInline = true;
+      film.video.autoplay = true;
+      film.video.loop = true;
+      film.video.play().catch(() => {});
+      return;
+    }
     film.video.pause();
     updateScrollState();
   };
@@ -160,6 +171,26 @@ scrollFilms.forEach((film) => {
     requestFilmSeek(film);
   });
 });
+
+function refreshMobileFilmMode() {
+  scrollFilms.forEach((film) => {
+    if (mobileFilmQuery.matches) {
+      film.video.muted = true;
+      film.video.playsInline = true;
+      film.video.autoplay = true;
+      film.video.loop = true;
+      if (film.video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) film.video.play().catch(() => {});
+    } else {
+      film.video.autoplay = false;
+      film.video.loop = false;
+      film.video.pause();
+    }
+  });
+  updateScrollState();
+}
+
+mobileFilmQuery.addEventListener('change', refreshMobileFilmMode);
+refreshMobileFilmMode();
 
 function syncAmbientVideoMotion() {
   document.querySelectorAll('video[autoplay]').forEach((video) => {
