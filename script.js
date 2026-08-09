@@ -1,9 +1,16 @@
 import brandMarkUrl from './OSSIUM_랜딩페이지_시안/로고.svg';
+import structurePosterUrl from './output_이미지에셋/제품 이미지및 영상/OSSIUM_맥세이프카드홀더_악어골격_01.png';
+import motionPosterUrl from './output_이미지에셋/제품 이미지및 영상/OSSIUM_키체인_해양골격_01.png';
 
 document.querySelectorAll('.brand-mark img').forEach((image) => {
   image.src = brandMarkUrl;
   image.removeAttribute('srcset');
 });
+
+const structurePoster = document.querySelector('.structure-media video');
+const motionPoster = document.querySelector('.motion-media video');
+if (structurePoster) structurePoster.poster = structurePosterUrl;
+if (motionPoster) motionPoster.poster = motionPosterUrl;
 
 const colour = document.querySelector('.colour');
 const swatches = document.querySelectorAll('.swatch');

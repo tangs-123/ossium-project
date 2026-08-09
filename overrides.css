@@ -1453,3 +1453,18 @@ footer .brand-mark img {
     width: 112px;
   }
 }
+
+/* Mobile video fallback: a product still remains visible when a browser defers video decoding. */
+@media (max-width: 767px) {
+  .structure-media,
+  .motion-media {
+    background: #050608;
+  }
+
+  .structure-media video,
+  .motion-media video {
+    display: block;
+    background: #050608;
+    opacity: 1;
+  }
+}
