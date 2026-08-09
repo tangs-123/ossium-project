@@ -1,10 +1,12 @@
 const colour = document.querySelector('.colour');
 const swatches = document.querySelectorAll('.swatch');
+const colourProducts = document.querySelectorAll('.colour-product');
 const header = document.querySelector('.site-header');
 const motionSection = document.querySelector('.motion-section');
 const motionSticky = document.querySelector('.motion-sticky');
 const motionSteps = document.querySelectorAll('.motion-steps li');
 const navLinks = document.querySelectorAll('.site-header nav a');
+const menuToggle = document.querySelector('.menu-toggle');
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const archiveDialog = document.querySelector('.archive-dialog');
 const archiveTriggers = document.querySelectorAll('.archive-trigger');
@@ -13,21 +15,40 @@ const chapterTargets = [...chapterLinks].map((link) => document.getElementById(l
 const pageSections = document.querySelectorAll('main > section');
 const heroSection = document.querySelector('.hero');
 const structureSteps = document.querySelectorAll('.structure-steps li');
-  const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
+const colourImageSources = {
+  ice: 'output_이미지에셋/colour-ice.png',
+  teal: 'output_이미지에셋/colour-teal.png',
+  yellow: 'output_이미지에셋/colour-yellow.png',
+};
+
+Object.entries(colourImageSources).forEach(([colourName, source]) => {
+  const image = document.querySelector(`.${colourName}-product img`);
+  if (image) image.src = source;
+});
+
+const SCRUB_FRAME_RATE = 24;
+const scrollFilms = [...document.querySelectorAll('[data-scroll-video]')].map((video) => ({
   video,
-  section: video.closest('[data-scroll-section]') || video.closest('.motion-section'),
+  section: video.closest('[data-scroll-section], .structure-scroll, .motion-section'),
   duration: 0,
   targetTime: 0,
   isSeeking: false,
-  }));
-  const structureSection = document.querySelector('.structure-scroll');
+}));
+const structureSection = document.querySelector('.structure-scroll');
 
 function setColour(swatch) {
-  colour.dataset.colour = swatch.dataset.colour;
+  if (!colour || !swatch) return;
+  const selectedColour = swatch.dataset.colour;
+  colour.dataset.colour = selectedColour;
   swatches.forEach((item) => {
     const selected = item === swatch;
     item.classList.toggle('is-selected', selected);
     item.setAttribute('aria-pressed', String(selected));
+  });
+  colourProducts.forEach((product) => {
+    const selected = product.classList.contains(`${selectedColour}-product`);
+    product.classList.toggle('is-active', selected);
+    product.setAttribute('aria-hidden', String(!selected));
   });
 }
 
@@ -42,6 +63,8 @@ swatches.forEach((swatch) => {
     setColour(swatches[next]);
   });
 });
+
+if (swatches.length) setColour(document.querySelector('.swatch.is-selected') || swatches[0]);
 
 function updateScrollState() {
   header.classList.toggle('is-scrolled', window.scrollY > 24);
@@ -69,6 +92,21 @@ function updateScrollState() {
   scrollFilms.forEach((film) => scrubVideo(film, scrollProgress(film.section)));
 }
 
+function setMobileMenu(open) {
+  if (!menuToggle) return;
+  header.classList.toggle('is-menu-open', open);
+  menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.querySelector('span').textContent = open ? 'CLOSE' : 'MENU';
+}
+
+if (menuToggle) {
+  menuToggle.addEventListener('click', () => setMobileMenu(!header.classList.contains('is-menu-open')));
+  navLinks.forEach((link) => link.addEventListener('click', () => setMobileMenu(false)));
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setMobileMenu(false);
+  });
+}
+
 function scrollProgress(section) {
   if (!section) return 0;
   const bounds = section.getBoundingClientRect();
@@ -78,7 +116,10 @@ function scrollProgress(section) {
 
 function scrubVideo(film, progress) {
   if (!film.duration) return;
-  film.targetTime = Math.min(film.duration - 0.04, Math.max(0, progress * film.duration));
+  const target = Math.min(film.duration - 0.05, Math.max(0, progress * film.duration));
+  // Work in display-sized frame steps. This avoids queueing many nearly identical
+  // decode requests while preserving a continuous forward and reverse scrub.
+  film.targetTime = Math.round(target * SCRUB_FRAME_RATE) / SCRUB_FRAME_RATE;
   requestFilmSeek(film);
 }
 
@@ -93,11 +134,13 @@ function requestFilmSeek(film) {
 function seekToScrollFrame(film) {
   if (film.isSeeking) return;
   const difference = film.targetTime - film.video.currentTime;
-  if (Math.abs(difference) < 0.014) return;
-  // Ease toward the requested frame. This keeps the film continuous while supporting reverse scroll.
-  const nextFrame = film.video.currentTime + difference * 0.22;
+  if (Math.abs(difference) < 1 / SCRUB_FRAME_RATE) return;
+
+  // Always decode the newest requested position. The former eased seek was
+  // intentionally delayed by several frames, which made the film look like it
+  // was lagging behind the scroll position.
   film.isSeeking = true;
-  film.video.currentTime = nextFrame;
+  film.video.currentTime = film.targetTime;
 }
 
 scrollFilms.forEach((film) => {
@@ -179,10 +222,72 @@ if (archiveDialog) {
   });
 }
 
+// The full technical records live in a focused archive window instead of extending the main scroll.
+const objectRecords = document.querySelector('#object-records');
+const archiveAllLinks = document.querySelectorAll('.archive-all-link');
+if (objectRecords && archiveAllLinks.length) {
+  const recordsDialog = document.createElement('dialog');
+  recordsDialog.className = 'records-dialog';
+  recordsDialog.setAttribute('aria-label', 'OSSIUM object records');
+
+  const closeButton = document.createElement('button');
+  closeButton.className = 'records-close';
+  closeButton.type = 'button';
+  closeButton.setAttribute('aria-label', 'Close object records');
+  closeButton.textContent = '×';
+
+  let lastTrigger = null;
+  objectRecords.classList.add('is-inview');
+  recordsDialog.append(closeButton, objectRecords);
+  document.body.append(recordsDialog);
+
+  const closeRecords = () => recordsDialog.close();
+  closeButton.addEventListener('click', closeRecords);
+  recordsDialog.addEventListener('click', (event) => {
+    if (event.target === recordsDialog) closeRecords();
+  });
+  recordsDialog.addEventListener('close', () => lastTrigger?.focus());
+
+  archiveAllLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      lastTrigger = link;
+      recordsDialog.showModal();
+      closeButton.focus();
+    });
+  });
+}
+
 document.documentElement.classList.add('js-enhanced');
 window.requestAnimationFrame(() => document.documentElement.classList.add('is-loaded'));
+const appearSelectors = [
+  '.statement h2',
+  '.statement-note',
+  '.process-heading',
+  '.process-grid li',
+  '.anatomy-heading',
+  '.anatomy-notes',
+  '.product-intro .intro-heading',
+  '.product-intro .spec-list',
+  '.motion-heading',
+  '.motion-steps',
+  '.material-copy',
+  '.colour-title',
+  '.swatches',
+  '.objects-head',
+  '.object-card',
+  '.manifesto h2',
+  '.manifesto .outline-link',
+  '.inquiry-heading',
+  '.inquiry-form'
+];
+
 pageSections.forEach((section) => {
   [...section.children].forEach((item, index) => item.style.setProperty('--item-index', String(index)));
+  section.querySelectorAll(appearSelectors.join(',')).forEach((item, index) => {
+    item.classList.add('appear');
+    item.style.setProperty('--appear-index', String(index));
+  });
 });
 
 function updatePageProgress() {
@@ -262,33 +367,55 @@ async function copyInquiryMessage(message) {
 }
 
 if (inquiryForm) {
+  const inquirySubmit = inquiryForm.querySelector('.inquiry-submit');
+  const inquiryFields = inquiryForm.querySelectorAll('input[required], select[required], textarea[required]');
+  inquiryFields.forEach((field) => {
+    field.addEventListener('blur', () => {
+      field.setAttribute('aria-invalid', String(!field.validity.valid));
+    });
+    field.addEventListener('input', () => {
+      if (field.validity.valid) field.removeAttribute('aria-invalid');
+    });
+  });
   inquiryForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!inquiryForm.checkValidity()) {
+      inquiryStatus.textContent = '필수 항목을 확인해 주세요.';
       inquiryForm.reportValidity();
       return;
     }
     const values = new FormData(inquiryForm);
-    const name = values.get('name') || 'OSSIUM visitor';
+    const name = values.get('name') || 'OSSIUM customer';
     const body = [
-      `Name: ${name}`,
-      `Email: ${values.get('email') || ''}`,
-      `Phone: ${values.get('phone') || ''}`,
-      `Country / City: ${values.get('location') || ''}`,
+      '[OSSIUM ORDER REQUEST]',
+      `Product: ${values.get('product') || ''}`,
+      `Colour: ${values.get('colour') || ''}`,
+      `Quantity: ${values.get('quantity') || '1'}`,
       '',
-      'Message:',
-      values.get('message') || '',
+      `Name: ${name}`,
+      `Phone: ${values.get('phone') || ''}`,
+      `Delivery area: ${values.get('location') || ''}`,
+      '',
+      'Order note:',
+      values.get('message') || '없음',
     ].join('\n');
+    inquirySubmit.disabled = true;
+    inquirySubmit.classList.add('is-submitting');
+    inquiryStatus.textContent = '주문 내용을 준비하고 있습니다.';
     const instagramWindow = window.open('https://www.instagram.com/ossiuum/', '_blank', 'noopener');
     try {
       await copyInquiryMessage(body);
-      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 열린 인스타그램에서 DM에 붙여넣어 보내주세요.';
+      inquiryStatus.textContent = '주문 양식이 복사되었습니다. 열린 인스타그램 DM에 붙여넣어 보내주세요.';
     } catch {
       inquiryStatus.textContent = '인스타그램 프로필을 열었습니다. 작성 내용을 직접 복사해 DM으로 보내주세요.';
     }
     if (!instagramWindow) {
-      inquiryStatus.textContent = '문의 내용이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
+      inquiryStatus.textContent = '주문 양식이 복사되었습니다. 팝업이 차단된 경우 @ossiuum 인스타그램에서 DM을 열어 붙여넣어 주세요.';
     }
+    window.setTimeout(() => {
+      inquirySubmit.disabled = false;
+      inquirySubmit.classList.remove('is-submitting');
+    }, 500);
   });
 }
 
