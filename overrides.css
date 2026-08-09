@@ -1423,7 +1423,33 @@ footer {
   }
 }
 
-/* Header and footer share the supplied white OSSIUM mark. */
-.brand-mark img {
-  filter: grayscale(1) brightness(0) invert(1);
+/* SVG brand mark: preserve the complete 1412 × 490 artwork without raster-era cropping. */
+.brand-mark,
+.site-header .brand-mark,
+footer .brand-mark {
+  width: 150px;
+  height: auto;
+  overflow: visible;
+  line-height: 0;
+}
+
+.brand-mark img,
+.site-header .brand-mark img,
+footer .brand-mark img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  transform: none !important;
+  object-fit: contain;
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+@media (max-width: 767px) {
+  .brand-mark,
+  .site-header .brand-mark,
+  footer .brand-mark {
+    width: 112px;
+  }
 }
