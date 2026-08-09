@@ -194,7 +194,8 @@ if (archiveDialog) {
         row.append(term, description);
         archiveSpecs.append(row);
       });
-      archiveImage.src = trigger.dataset.image;
+      const cardImage = trigger.querySelector('img');
+      archiveImage.src = cardImage?.currentSrc || cardImage?.src || '';
       archiveImage.alt = `${trigger.dataset.kind} 제품 이미지`;
       archiveDialog.showModal();
       closeArchive.focus();
