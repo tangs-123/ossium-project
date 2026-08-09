@@ -1469,6 +1469,23 @@ footer .brand-mark img {
   }
 }
 
+/* The product-motion panel owns its frame on compact screens: no adjacent media may bleed in. */
+@media (max-width: 1023px) {
+  .motion-media {
+    isolation: isolate;
+    contain: paint;
+    background: #050608;
+  }
+
+  .motion-media .motion-film {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #050608;
+    object-fit: contain;
+  }
+}
+
 /* Object records lock each text and image column to the shared outer grid lines. */
 @media (min-width: 1024px) {
   .object-details {
