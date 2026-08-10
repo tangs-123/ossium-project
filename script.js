@@ -226,9 +226,40 @@ function syncMotionFilmStep() {
 }
 
 if (motionFilm) {
+  const configureMotionFilm = () => {
+    motionFilm.muted = true;
+    motionFilm.defaultMuted = true;
+    motionFilm.playsInline = true;
+    motionFilm.autoplay = true;
+    motionFilm.loop = true;
+    motionFilm.preload = 'auto';
+    motionFilm.setAttribute('muted', '');
+    motionFilm.setAttribute('playsinline', '');
+    motionFilm.setAttribute('autoplay', '');
+    motionFilm.setAttribute('loop', '');
+  };
+  const playMotionFilm = () => {
+    if (document.hidden || reducedMotionQuery.matches) return;
+    configureMotionFilm();
+    motionFilm.play().catch(() => {});
+  };
+  const motionFilmObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) playMotionFilm();
+      else motionFilm.pause();
+    });
+  }, { threshold: 0.15 });
+  configureMotionFilm();
+  motionFilmObserver.observe(motionFilm);
   motionFilm.addEventListener('loadedmetadata', syncMotionFilmStep);
+  motionFilm.addEventListener('loadeddata', playMotionFilm);
+  motionFilm.addEventListener('canplay', playMotionFilm);
   motionFilm.addEventListener('timeupdate', syncMotionFilmStep);
   motionFilm.addEventListener('seeked', syncMotionFilmStep);
+  window.addEventListener('pageshow', playMotionFilm);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) playMotionFilm();
+  });
 }
 
 function syncAmbientVideoMotion() {
