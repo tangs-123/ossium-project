@@ -83,6 +83,7 @@ function updateScrollState() {
 function setMobileMenu(open) {
   if (!menuToggle) return;
   header.classList.toggle('is-menu-open', open);
+  if (open) header.classList.remove('is-scroll-hidden');
   menuToggle.setAttribute('aria-expanded', String(open));
   menuToggle.querySelector('span').textContent = open ? 'CLOSE' : 'MENU';
 }
@@ -231,12 +232,10 @@ if (motionFilm) {
     motionFilm.defaultMuted = true;
     motionFilm.playsInline = true;
     motionFilm.autoplay = true;
-    motionFilm.loop = true;
     motionFilm.preload = 'auto';
     motionFilm.setAttribute('muted', '');
     motionFilm.setAttribute('playsinline', '');
     motionFilm.setAttribute('autoplay', '');
-    motionFilm.setAttribute('loop', '');
   };
   const playMotionFilm = () => {
     if (document.hidden || reducedMotionQuery.matches) return;
@@ -317,9 +316,16 @@ if (archiveDialog) {
     });
   });
 
-  closeArchive.addEventListener('click', () => archiveDialog.close());
+  const closeArchiveDialog = () => {
+    archiveDialog.classList.add('is-closing');
+    window.setTimeout(() => {
+      archiveDialog.close();
+      archiveDialog.classList.remove('is-closing');
+    }, 180);
+  };
+  closeArchive.addEventListener('click', closeArchiveDialog);
   archiveDialog.addEventListener('click', (event) => {
-    if (event.target === archiveDialog) archiveDialog.close();
+    if (event.target === archiveDialog) closeArchiveDialog();
   });
   archiveDialog.addEventListener('close', () => {
     archiveTrigger?.focus();
@@ -346,7 +352,13 @@ if (objectRecords && archiveAllLinks.length) {
   recordsDialog.append(closeButton, objectRecords);
   document.body.append(recordsDialog);
 
-  const closeRecords = () => recordsDialog.close();
+  const closeRecords = () => {
+    recordsDialog.classList.add('is-closing');
+    window.setTimeout(() => {
+      recordsDialog.close();
+      recordsDialog.classList.remove('is-closing');
+    }, 180);
+  };
   closeButton.addEventListener('click', closeRecords);
   recordsDialog.addEventListener('click', (event) => {
     if (event.target === recordsDialog) closeRecords();
@@ -402,6 +414,7 @@ function updatePageProgress() {
 
 let scrollFrame = 0;
 let chapterRailTimer = 0;
+let lastHeaderScrollY = window.scrollY;
 function requestScrollUpdate() {
   if (scrollFrame) return;
   scrollFrame = window.requestAnimationFrame(() => {
@@ -437,9 +450,22 @@ chapterTargets.forEach((target) => chapterObserver.observe(target));
 
 window.addEventListener('scroll', () => {
   document.documentElement.classList.add('is-scrolling');
+  const currentHeaderScrollY = window.scrollY;
+  const headerScrollDelta = currentHeaderScrollY - lastHeaderScrollY;
+  if (header && !header.classList.contains('is-menu-open')) {
+    if (currentHeaderScrollY <= 24 || headerScrollDelta < -6) {
+      header.classList.remove('is-scroll-hidden');
+    } else if (headerScrollDelta > 6) {
+      header.classList.add('is-scroll-hidden');
+    }
+  }
+  lastHeaderScrollY = currentHeaderScrollY;
   window.clearTimeout(chapterRailTimer);
   chapterRailTimer = window.setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 520);
   requestScrollUpdate();
+}, { passive: true });
+window.addEventListener('scrollend', () => {
+  if (!header?.classList.contains('is-menu-open')) header.classList.remove('is-scroll-hidden');
 }, { passive: true });
 window.addEventListener('resize', requestScrollUpdate, { passive: true });
 requestScrollUpdate();

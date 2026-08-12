@@ -6,6 +6,9 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* Interaction layer: motion communicates the holder's three physical states. */
 .site-header{position:fixed;transition:background-color .24s ease,backdrop-filter .24s ease}
+.site-header{will-change:transform,opacity;transition:transform .58s cubic-bezier(.16,.84,.22,1),opacity .42s ease,background-color .24s ease,backdrop-filter .24s ease}
+.site-header.is-scroll-hidden{opacity:0;transform:translate3d(0,-118%,0);pointer-events:none}
+.site-header.is-menu-open{transform:translate3d(0,0,0)!important}
 .site-header.is-scrolled{background:rgba(5,6,8,.78);backdrop-filter:blur(12px)}
 .site-header a,.shop-link{min-height:44px;display:inline-flex;align-items:center}
 .site-header nav a{border-bottom:1px solid transparent}
@@ -163,7 +166,7 @@ body{letter-spacing:-.012em;text-rendering:optimizeLegibility;-webkit-font-smoot
 
 /* OSSIUM V2 — precise, cinematic product study. */
 :root{--blue:#a7c2ff;--surface:#05070a;--line:rgba(231,238,248,.18);--ease-out:cubic-bezier(.16,.84,.22,1)}
-body{background:#000;letter-spacing:-.016em}.site-header{height:82px;border-color:rgba(231,238,248,.1);transition:background-color .28s ease,border-color .28s ease,backdrop-filter .28s ease}.site-header.is-scrolled{background:rgba(0,0,0,.84);border-color:rgba(231,238,248,.16)}.site-header nav{gap:clamp(20px,2vw,38px)}.site-header nav a,.shop-link{font-size:10px;font-weight:700}.shop-link{gap:6px}.chapter-rail{z-index:12}.chapter-rail a{letter-spacing:.16em}
+body{background:#000;letter-spacing:-.016em}.site-header{height:82px;border-color:rgba(231,238,248,.1);will-change:transform,opacity;transition:transform .58s cubic-bezier(.16,.84,.22,1),opacity .42s ease,background-color .28s ease,border-color .28s ease,backdrop-filter .28s ease}.site-header.is-scrolled{background:rgba(0,0,0,.84);border-color:rgba(231,238,248,.16)}.site-header nav{gap:clamp(20px,2vw,38px)}.site-header nav a,.shop-link{font-size:10px;font-weight:700}.shop-link{gap:6px}.chapter-rail{z-index:12}.chapter-rail a{letter-spacing:.16em}
 .hero{min-height:100dvh;align-items:center;overflow:hidden;background:radial-gradient(ellipse 62% 58% at 72% 47%,rgba(46,75,136,.18),transparent 70%),#000}.hero::before{content:"";position:absolute;inset:82px var(--grid-gutter) 58px;border-top:1px solid rgba(231,238,248,.12);border-bottom:1px solid rgba(231,238,248,.12);pointer-events:none}.hero-copy{align-self:center;transform:translate3d(0,24px,0);opacity:0;transition:transform .9s var(--ease-out),opacity .6s ease}.hero h1{font-size:clamp(58px,7.7vw,142px);max-width:7ch;letter-spacing:-.075em;line-height:.8}.hero-line{max-width:310px;margin-top:34px;font-size:15px;line-height:1.65}.hero-product{filter:drop-shadow(0 30px 58px rgba(96,137,218,.24));transform:translate3d(8vw,0,0) scale(.92);opacity:0;transition:transform 1.15s var(--ease-out),opacity .8s ease;will-change:transform}.hero-product img{transform:rotate(-2deg);transition:transform .5s ease}.hero-index{position:absolute;bottom:30px;left:var(--grid-gutter);right:var(--grid-gutter);z-index:3}.is-loaded .hero-copy{opacity:1;transform:translate3d(0,0,0)}.is-loaded .hero-product{opacity:1;transform:translate3d(calc(var(--hero-scroll,0) * -4vw),calc(var(--hero-scroll,0) * -2vh),0) scale(calc(.92 + var(--hero-scroll,0) * .08))}.is-loaded .hero-product img{transform:rotate(calc(-2deg + var(--hero-scroll,0) * 5deg))}
 .statement{overflow:hidden;background:#000}.statement::before{content:"01 / BRAND ETHOS";position:absolute;top:var(--grid-gutter);left:var(--grid-gutter);color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.14em}.statement h2{max-width:11ch;transform:translateX(-.06em)}.statement-note{max-width:280px;padding-left:18px;border-left:1px solid var(--blue)}
 .structure-scroll,.motion-section{background:#000}.structure-copy,.motion-heading{max-width:500px}.structure-copy h2,.motion-heading h2{font-size:clamp(58px,7.3vw,132px)}.structure-media::after,.motion-media::after{content:"";position:absolute;inset:0;border:1px solid rgba(231,238,248,.14);pointer-events:none}.structure-media video{filter:contrast(1.08) saturate(.9)}.motion-media{overflow:hidden}.motion-media video{transition:filter .3s ease}.motion-sticky[data-step="2"] .motion-media video{filter:brightness(.93) saturate(1)}.motion-sticky[data-step="3"] .motion-media video{filter:brightness(1) saturate(1.1)}
@@ -1656,6 +1659,142 @@ footer .brand-mark img {
     margin:24px 0 0!important;
   }
   .motion-steps li { min-height:48px; padding-top:8px; }
+}
+
+/* Process archive: one square specimen grid, aligned to the shared top rule. */
+.process-grid { align-items:start; }
+.process-grid li {
+  display:grid;
+  grid-template-rows:auto auto 1fr;
+  align-content:start;
+  min-width:0;
+}
+.process-grid .process-media {
+  width:100%;
+  aspect-ratio:1 / 1!important;
+  border-top:2px solid #89a9f5;
+}
+.process-grid .process-media img,
+.process-grid li:nth-child(3) .process-print-photo {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.process-grid b { margin-top:14px; }
+
+/* Object Records modal: isolated responsive editorial layout. */
+.records-dialog{
+  width:min(1360px,calc(100% - 48px));
+  height:min(88dvh,960px);
+  max-height:none;
+  scrollbar-gutter:stable;
+}
+.records-dialog .object-details{
+  width:100%;
+  max-width:1240px;
+  margin:0 auto;
+  padding:clamp(82px,7vw,112px) clamp(40px,6vw,88px) 72px!important;
+}
+.records-dialog .object-details>h2{
+  width:auto;
+  max-width:9ch;
+  margin:0 0 clamp(40px,5vw,64px);
+  padding:0 0 clamp(28px,3vw,40px);
+  font-size:clamp(56px,6vw,88px);
+}
+.records-dialog .object-details>h2::before{top:-22px;transform:none}
+.records-dialog .object-detail,
+.records-dialog .object-detail.is-reverse{
+  display:grid!important;
+  grid-template-columns:minmax(300px,.9fr) minmax(380px,520px)!important;
+  grid-template-rows:auto;
+  align-items:center;
+  gap:clamp(40px,7vw,96px)!important;
+  min-height:0!important;
+  padding:clamp(50px,6vw,82px) 0!important;
+}
+.records-dialog .object-detail>.detail-copy,
+.records-dialog .object-detail.is-reverse>.detail-copy{
+  grid-column:1!important;
+  grid-row:1!important;
+  width:100%!important;
+  max-width:440px;
+  min-width:0;
+  justify-self:start!important;
+}
+.records-dialog .object-detail>figure.detail-image,
+.records-dialog .object-detail.is-reverse>figure.detail-image{
+  grid-column:2!important;
+  grid-row:1!important;
+  width:min(100%,520px)!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  justify-self:end!important;
+  align-self:center;
+}
+.records-dialog .detail-copy h3{
+  max-width:none;
+  font-size:clamp(46px,4.4vw,68px);
+  overflow-wrap:anywhere;
+}
+.records-dialog .detail-note{max-width:34ch;min-height:0}
+
+@media (min-width:768px) and (max-width:1023px){
+  .records-dialog{width:calc(100% - 32px);height:calc(100dvh - 32px)}
+  .records-dialog .object-details{padding:86px 40px 56px!important}
+  .records-dialog .object-detail,.records-dialog .object-detail.is-reverse{grid-template-columns:minmax(0,1fr) minmax(280px,1fr)!important;gap:32px!important}
+  .records-dialog .object-detail>figure.detail-image,.records-dialog .object-detail.is-reverse>figure.detail-image{width:100%!important}
+  .records-dialog .detail-copy h3{font-size:clamp(42px,5.6vw,58px)}
+}
+
+@media (max-width:767px){
+  .records-dialog{width:calc(100% - 16px);height:calc(100dvh - 16px)}
+  .records-close{top:8px;margin:8px 8px -52px auto}
+  .records-dialog .object-details{padding:72px 20px 40px!important}
+  .records-dialog .object-details>h2{margin-bottom:30px;padding-bottom:22px;font-size:clamp(46px,14vw,64px)}
+  .records-dialog .object-details>h2::before{position:static;margin:0 0 14px}
+  .records-dialog .object-detail,.records-dialog .object-detail.is-reverse{grid-template-columns:1fr!important;gap:26px!important;padding:38px 0!important}
+  .records-dialog .object-detail>figure.detail-image,.records-dialog .object-detail.is-reverse>figure.detail-image{grid-column:1!important;grid-row:1!important;width:100%!important;justify-self:stretch!important}
+  .records-dialog .object-detail>.detail-copy,.records-dialog .object-detail.is-reverse>.detail-copy{grid-column:1!important;grid-row:2!important}
+.records-dialog .detail-copy h3{font-size:clamp(40px,12vw,54px)}
+}
+
+/* Process cards use independent images; never retain a contact-sheet translate. */
+.process-grid .process-media img,
+.process-grid li:nth-child(3) .process-print-photo{
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  transform:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+
+/* Apple-design pass: responsive feedback, material hierarchy and motion safety. */
+body{letter-spacing:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.hero h1,.statement h2,.product-intro h2,.motion-heading h2,.material h2,.colour h2,.objects h2,.manifesto h2,.structure-copy h2,.process-heading h2,.anatomy-heading h2,.detail-copy h3,.archive-copy h2{font-optical-sizing:auto}
+.site-header{overflow:visible}
+.site-header::after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:-18px;height:18px;background:linear-gradient(to bottom,rgba(0,0,0,.2),transparent);pointer-events:none;opacity:0;transition:opacity .28s ease}
+.site-header.is-scrolled::after{opacity:1}
+.archive-dialog,.records-dialog{transform-origin:50% 50%;transition:opacity .18s ease,transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease}
+.archive-dialog.is-closing,.records-dialog.is-closing{opacity:0;transform:translateY(10px) scale(.985);filter:blur(2px);pointer-events:none}
+.archive-dialog::backdrop,.records-dialog::backdrop{transition:background-color .18s ease,backdrop-filter .18s ease}
+.archive-dialog.is-closing::backdrop,.records-dialog.is-closing::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}
+
+@media (prefers-reduced-motion:reduce){
+  .site-header,.site-header::after,.archive-dialog,.records-dialog,.archive-dialog::backdrop,.records-dialog::backdrop{transition:opacity .16s ease!important;transform:none!important;filter:none!important}
+  .structure-media video{transform:none!important}
+  .structure-media,.motion-media{overflow:hidden}
+}
+
+@media (prefers-reduced-transparency:reduce){
+  .site-header,.site-header.is-scrolled{background:#050608!important;backdrop-filter:none!important}
+  .archive-dialog::backdrop,.records-dialog::backdrop{background:rgba(0,0,0,.94);backdrop-filter:none}
+}
+
+@media (prefers-contrast:more){
+  .site-header,.archive-dialog,.records-dialog{border-color:#eef2f4!important}
+  .site-header.is-scrolled{background:#000!important}
 }
 
 /* Compact structure film: enlarge the product study without changing its frame. */
