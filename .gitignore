@@ -4,3 +4,5 @@ tmp/
 output/
 OSSIUM_랜딩페이지_시안/
 *.pdf
+.env*
+!.env.example

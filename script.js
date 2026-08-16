@@ -274,6 +274,42 @@ reducedMotionQuery.addEventListener('change', () => {
 });
 syncAmbientVideoMotion();
 
+const dialogAnimations = new WeakMap();
+function openFluidDialog(dialog) {
+  dialogAnimations.get(dialog)?.cancel();
+  if (!dialog.open) dialog.showModal();
+  if (reducedMotionQuery.matches) return;
+  const animation = dialog.animate([
+    { opacity: 0, transform: 'translateY(10px) scale(.985)', filter: 'blur(2px)' },
+    { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' },
+  ], { duration: 220, easing: 'cubic-bezier(.16,.84,.22,1)', fill: 'both' });
+  dialogAnimations.set(dialog, animation);
+  animation.finished.then(() => {
+    if (dialogAnimations.get(dialog) !== animation) return;
+    dialogAnimations.delete(dialog);
+    animation.cancel();
+  }).catch(() => {});
+}
+
+function closeFluidDialog(dialog) {
+  dialogAnimations.get(dialog)?.cancel();
+  if (reducedMotionQuery.matches) {
+    dialog.close();
+    return;
+  }
+  const animation = dialog.animate([
+    { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' },
+    { opacity: 0, transform: 'translateY(10px) scale(.985)', filter: 'blur(2px)' },
+  ], { duration: 180, easing: 'cubic-bezier(.4,0,1,1)', fill: 'both' });
+  dialogAnimations.set(dialog, animation);
+  animation.finished.then(() => {
+    if (dialogAnimations.get(dialog) !== animation) return;
+    dialogAnimations.delete(dialog);
+    if (dialog.open) dialog.close();
+    animation.cancel();
+  }).catch(() => {});
+}
+
 if (archiveDialog) {
   const archiveImage = archiveDialog.querySelector('.archive-image');
   const archiveTitle = archiveDialog.querySelector('#archive-title');
@@ -311,21 +347,21 @@ if (archiveDialog) {
       const cardImage = trigger.querySelector('img');
       archiveImage.src = cardImage?.currentSrc || cardImage?.src || '';
       archiveImage.alt = `${trigger.dataset.kind} 제품 이미지`;
-      archiveDialog.showModal();
+      openFluidDialog(archiveDialog);
       closeArchive.focus();
     });
   });
 
   const closeArchiveDialog = () => {
-    archiveDialog.classList.add('is-closing');
-    window.setTimeout(() => {
-      archiveDialog.close();
-      archiveDialog.classList.remove('is-closing');
-    }, 180);
+    closeFluidDialog(archiveDialog);
   };
   closeArchive.addEventListener('click', closeArchiveDialog);
   archiveDialog.addEventListener('click', (event) => {
     if (event.target === archiveDialog) closeArchiveDialog();
+  });
+  archiveDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeArchiveDialog();
   });
   archiveDialog.addEventListener('close', () => {
     archiveTrigger?.focus();
@@ -353,15 +389,15 @@ if (objectRecords && archiveAllLinks.length) {
   document.body.append(recordsDialog);
 
   const closeRecords = () => {
-    recordsDialog.classList.add('is-closing');
-    window.setTimeout(() => {
-      recordsDialog.close();
-      recordsDialog.classList.remove('is-closing');
-    }, 180);
+    closeFluidDialog(recordsDialog);
   };
   closeButton.addEventListener('click', closeRecords);
   recordsDialog.addEventListener('click', (event) => {
     if (event.target === recordsDialog) closeRecords();
+  });
+  recordsDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeRecords();
   });
   recordsDialog.addEventListener('close', () => lastTrigger?.focus());
 
@@ -369,7 +405,7 @@ if (objectRecords && archiveAllLinks.length) {
     link.addEventListener('click', (event) => {
       event.preventDefault();
       lastTrigger = link;
-      recordsDialog.showModal();
+      openFluidDialog(recordsDialog);
       closeButton.focus();
     });
   });
@@ -414,6 +450,7 @@ function updatePageProgress() {
 
 let scrollFrame = 0;
 let chapterRailTimer = 0;
+let headerRevealTimer = 0;
 let lastHeaderScrollY = window.scrollY;
 function requestScrollUpdate() {
   if (scrollFrame) return;
@@ -460,11 +497,16 @@ window.addEventListener('scroll', () => {
     }
   }
   lastHeaderScrollY = currentHeaderScrollY;
+  window.clearTimeout(headerRevealTimer);
+  headerRevealTimer = window.setTimeout(() => {
+    if (!header?.classList.contains('is-menu-open')) header.classList.remove('is-scroll-hidden');
+  }, 520);
   window.clearTimeout(chapterRailTimer);
   chapterRailTimer = window.setTimeout(() => document.documentElement.classList.remove('is-scrolling'), 520);
   requestScrollUpdate();
 }, { passive: true });
 window.addEventListener('scrollend', () => {
+  window.clearTimeout(headerRevealTimer);
   if (!header?.classList.contains('is-menu-open')) header.classList.remove('is-scroll-hidden');
 }, { passive: true });
 window.addEventListener('resize', requestScrollUpdate, { passive: true });

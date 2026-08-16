@@ -12,8 +12,17 @@ export default defineConfig({
       name: 'copy-classic-script',
       closeBundle() {
         copyFileSync(resolve(import.meta.dirname, 'script.js'), resolve(import.meta.dirname, 'dist/script.js'))
+        copyFileSync(resolve(import.meta.dirname, 'pay.js'), resolve(import.meta.dirname, 'dist/pay.js'))
       },
     },
   ],
   publicDir: 'output_이미지에셋',
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        pay: resolve(import.meta.dirname, 'pay.html'),
+      },
+    },
+  },
 })

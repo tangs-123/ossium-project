@@ -1777,9 +1777,7 @@ body{letter-spacing:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Se
 .site-header::after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:-18px;height:18px;background:linear-gradient(to bottom,rgba(0,0,0,.2),transparent);pointer-events:none;opacity:0;transition:opacity .28s ease}
 .site-header.is-scrolled::after{opacity:1}
 .archive-dialog,.records-dialog{transform-origin:50% 50%;transition:opacity .18s ease,transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease}
-.archive-dialog.is-closing,.records-dialog.is-closing{opacity:0;transform:translateY(10px) scale(.985);filter:blur(2px);pointer-events:none}
 .archive-dialog::backdrop,.records-dialog::backdrop{transition:background-color .18s ease,backdrop-filter .18s ease}
-.archive-dialog.is-closing::backdrop,.records-dialog.is-closing::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}
 
 @media (prefers-reduced-motion:reduce){
   .site-header,.site-header::after,.archive-dialog,.records-dialog,.archive-dialog::backdrop,.records-dialog::backdrop{transition:opacity .16s ease!important;transform:none!important;filter:none!important}
@@ -1795,6 +1793,48 @@ body{letter-spacing:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Se
 @media (prefers-contrast:more){
   .site-header,.archive-dialog,.records-dialog{border-color:#eef2f4!important}
   .site-header.is-scrolled{background:#000!important}
+}
+
+/* Global OSSIUM typeface */
+html,
+body,
+button,
+input,
+select,
+textarea,
+dialog {
+  font-family:"Pretendard Variable","Pretendard",sans-serif!important;
+}
+
+/* Compact navigation: two balanced items per row on tablets and phones. */
+@media (max-width:1023px){
+  .site-header{
+    position:fixed;
+    grid-template-columns:minmax(96px,1fr) auto minmax(96px,1fr);
+  }
+  .menu-toggle{display:inline-flex!important}
+  .site-header nav{display:none!important}
+  .site-header.is-menu-open nav{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;
+    padding:12px var(--grid-gutter) 20px;
+    border-top:1px solid rgba(238,242,244,.14);
+    border-bottom:1px solid rgba(238,242,244,.14);
+    background:rgba(7,9,12,.98);
+    box-shadow:0 18px 32px rgba(0,0,0,.28);
+  }
+  .site-header.is-menu-open nav a,
+  .site-header.is-menu-open nav a:last-child{
+    grid-column:auto!important;
+    min-height:56px;
+    padding:0 4px;
+    border-bottom:1px solid rgba(238,242,244,.14);
+  }
 }
 
 /* Compact structure film: enlarge the product study without changing its frame. */
