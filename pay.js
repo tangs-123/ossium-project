@@ -275,7 +275,10 @@ transferApps.forEach((app) => {
   transferOptions.append(option);
 });
 
-transferButton.addEventListener('click', () => { transferHelp.textContent = ''; transferDialog.showModal(); });
+transferButton.addEventListener('click', () => {
+  transferHelp.textContent = '';
+  openTossApp();
+});
 document.querySelector('#close-transfer').addEventListener('click', () => transferDialog.close());
 transferDialog.addEventListener('click', (event) => { if (event.target === transferDialog) transferDialog.close(); });
 transferDialog.addEventListener('close', () => transferButton.focus());
