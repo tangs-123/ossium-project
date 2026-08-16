@@ -17,13 +17,8 @@ let adminDraftProducts = [];
 
 const transferApps = [
   { name: '토스 앱 열기', action: 'toss' },
-  { name: '카카오뱅크', action: 'manual' },
-  { name: 'KB국민은행', action: 'manual' },
-  { name: '신한 SOL', action: 'manual' },
-  { name: '우리WON뱅킹', action: 'manual' },
-  { name: 'NH올원뱅크 / NH스마트뱅킹', action: 'manual' },
-  { name: '하나원큐', action: 'manual' },
-  { name: '은행 앱 직접 열기 안내', action: 'manual' },
+  { name: '카카오페이', action: 'kakao-pay' },
+  { name: '직접 열기', action: 'copy-account' },
 ];
 const TOSS_DEEP_LINK = 'supertoss://toss/pay';
 const TOSS_ANDROID_INTENT = 'intent://toss/pay#Intent;scheme=supertoss;package=viva.republica.toss;end';
@@ -260,13 +255,22 @@ transferApps.forEach((app) => {
   option.className = `transfer-option${app.action === 'toss' ? ' transfer-option-direct' : ''}`;
   option.type = 'button';
   option.textContent = app.action === 'toss' ? `${app.name} ↗` : app.name;
-  option.setAttribute('aria-label', app.action === 'toss' ? '토스 앱 열기' : `${app.name} 송금 안내 보기`);
-  option.addEventListener('click', () => {
+  option.setAttribute('aria-label', app.action === 'toss' ? '토스 앱 열기' : app.action === 'copy-account' ? '계좌번호를 복사하고 직접 송금 앱 열기 안내 보기' : '카카오페이 송금 안내 보기');
+  option.addEventListener('click', async () => {
     if (app.action === 'toss') {
       openTossApp();
       return;
     }
-    transferHelp.textContent = '계좌번호와 결제금액을 복사한 뒤 사용 중인 은행 앱을 열어 붙여넣어 주세요.';
+    if (app.action === 'copy-account') {
+      try {
+        await copyText(BANK.copyAccount);
+        transferHelp.textContent = '계좌번호를 복사했습니다. 사용하는 송금 앱을 열어 붙여넣어 주세요.';
+      } catch {
+        transferHelp.textContent = '계좌번호를 복사하지 못했습니다. 화면의 계좌번호를 직접 확인해 주세요.';
+      }
+      return;
+    }
+    transferHelp.textContent = '카카오페이에서는 계좌번호와 결제금액을 복사한 뒤 송금 화면에 붙여넣어 주세요.';
   });
   transferOptions.append(option);
 });
