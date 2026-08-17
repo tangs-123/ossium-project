@@ -14,6 +14,7 @@ const products = [
   { id: 'jibbitz', name: 'JIBBITZ', price: 9000, discountRate: 0 },
 ];
 let adminDraftProducts = [];
+let adminSessionToken = '';
 
 const transferApps = [
   { name: '토스 앱 열기', action: 'toss' },
@@ -149,6 +150,28 @@ function update() {
   renderProducts();
   renderPayment();
   requestAnimationFrame(syncDockOffset);
+}
+
+function applyProducts(nextProducts) {
+  products.splice(0, products.length, ...nextProducts.map((product) => ({
+    id: product.id,
+    name: product.name.trim(),
+    price: Math.round(Number(product.price)),
+    discountRate: Math.round(getDiscountRate(product)),
+  })));
+  Object.keys(quantities).forEach((id) => { if (!products.some((product) => product.id === id)) delete quantities[id]; });
+  products.forEach((product) => { if (!(product.id in quantities)) quantities[product.id] = 0; });
+  update();
+}
+
+async function loadSavedProducts() {
+  try {
+    const response = await fetch('/api/products', { cache: 'no-store' });
+    const result = await response.json();
+    if (response.ok && Array.isArray(result.products)) applyProducts(result.products);
+  } catch {
+    // file:// preview keeps the bundled defaults, while the deployed page loads shared settings.
+  }
 }
 
 async function copyText(text) {
@@ -351,6 +374,7 @@ adminAuth.addEventListener('submit', async (event) => {
     }
     adminAuth.hidden = true;
     adminSettings.hidden = false;
+    adminSessionToken = result.token || '';
     adminSettingsStatus.textContent = '';
     adminDraftProducts = products.map((product) => ({ ...product }));
     renderAdminSettings();
@@ -400,7 +424,7 @@ document.querySelector('#admin-add-product').addEventListener('click', () => {
   adminProductPrices.querySelector(`[data-name-id="${id}"]`).focus();
 });
 
-adminSettings.addEventListener('submit', (event) => {
+adminSettings.addEventListener('submit', async (event) => {
   event.preventDefault();
   const invalidProduct = !adminDraftProducts.length || adminDraftProducts.some((product) => (
     !product.name.trim()
@@ -414,17 +438,39 @@ adminSettings.addEventListener('submit', (event) => {
     adminSettingsStatus.textContent = '품목명, 0원 이상의 가격, 0~100 할인율을 입력해 주세요.';
     return;
   }
-  products.splice(0, products.length, ...adminDraftProducts.map((product) => ({
+  const nextProducts = adminDraftProducts.map((product) => ({
     ...product,
     name: product.name.trim(),
     price: Math.round(product.price),
     discountRate: Math.round(product.discountRate),
-  })));
-  Object.keys(quantities).forEach((id) => { if (!products.some((product) => product.id === id)) delete quantities[id]; });
-  products.forEach((product) => { if (!(product.id in quantities)) quantities[product.id] = 0; });
-  adminDialog.close();
-  status.textContent = '현장 가격 및 할인율을 적용했습니다.';
-  update();
+  }));
+  const submitButton = adminSettings.querySelector('[type="submit"]');
+  submitButton.disabled = true;
+  adminSettingsStatus.textContent = '공유 설정을 저장하고 있습니다.';
+  try {
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminSessionToken}`,
+      },
+      body: JSON.stringify({ products: nextProducts }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      adminSettingsStatus.textContent = result.error || '공유 설정을 저장하지 못했습니다.';
+      return;
+    }
+    applyProducts(result.products || nextProducts);
+    adminDialog.close();
+    status.textContent = '현장 가격·할인율·품목을 저장했습니다. 모든 기기에 반영됩니다.';
+  } catch {
+    adminSettingsStatus.textContent = location.protocol === 'file:'
+      ? '공유 저장은 배포 주소에서 사용할 수 있습니다.'
+      : '공유 설정 서버에 연결하지 못했습니다.';
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
 if ('ResizeObserver' in window) {
@@ -434,3 +480,4 @@ if ('ResizeObserver' in window) {
 }
 
 update();
+loadSavedProducts();

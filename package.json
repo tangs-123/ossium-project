@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "latest",
+    "@vercel/blob": "^2.8.0",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
     "react": "latest",
     "react-dom": "latest",
     "tailwindcss": "latest",
-    "@tailwindcss/vite": "latest"
-  },
-  "devDependencies": {}
+    "vite": "latest"
+  }
 }
