@@ -326,29 +326,41 @@ function renderAdminSettings() {
     name.dataset.nameId = product.id;
     name.setAttribute('aria-label', '상품명');
     const price = document.createElement('input');
-    price.type = 'text';
+    price.type = 'number';
+    price.min = '0';
+    price.step = '1';
     price.inputMode = 'decimal';
     price.value = String(product.price);
     price.placeholder = '가격';
     price.dataset.priceId = product.id;
     price.setAttribute('aria-label', `${product.name} 가격`);
     const discount = document.createElement('input');
-    discount.type = 'text';
+    discount.type = 'number';
+    discount.min = '0';
+    discount.max = '100';
+    discount.step = '0.01';
     discount.inputMode = 'decimal';
     discount.value = String(getDiscountRate(product));
+    discount.disabled = hasForcedSalePrice(product);
     discount.placeholder = '할인 %';
     discount.dataset.discountId = product.id;
     discount.setAttribute('aria-label', `${product.name} 할인율`);
     const discountedPrice = document.createElement('input');
-    discountedPrice.type = 'text';
+    discountedPrice.type = 'number';
+    discountedPrice.min = '0';
+    discountedPrice.step = '0.01';
     discountedPrice.inputMode = 'decimal';
     discountedPrice.value = formatEditorNumber(getEffectiveUnitPrice(product));
     discountedPrice.placeholder = '할인가';
     discountedPrice.dataset.salePriceId = product.id;
     discountedPrice.setAttribute('aria-label', `${product.name} 할인가`);
+    const forcePrice = makeButton(hasForcedSalePrice(product) ? '고정 해제' : '가격 고정', { forcePriceId: product.id });
+    forcePrice.className = `force-price-button${hasForcedSalePrice(product) ? ' is-active' : ''}`;
+    forcePrice.setAttribute('aria-label', `${product.name} ${hasForcedSalePrice(product) ? '고정 가격 해제' : '가격 고정'}`);
+    forcePrice.setAttribute('aria-pressed', String(hasForcedSalePrice(product)));
     const remove = makeButton('삭제', { removeId: product.id });
     remove.setAttribute('aria-label', `${product.name} 삭제`);
-    field.append(name, price, discount, discountedPrice, remove);
+    field.append(name, price, discount, discountedPrice, forcePrice, remove);
     return field;
   }));
 }
@@ -409,9 +421,7 @@ function syncAdminDiscountFields(id, source) {
 
 function parseAdminNumber(value) {
   const raw = String(value).trim();
-  const forced = raw.startsWith('.');
-  const numeric = forced ? raw.slice(1) : raw;
-  return { forced, value: Number(numeric) };
+  return raw === '' ? Number.NaN : Number(raw);
 }
 
 adminProductPrices.addEventListener('input', (event) => {
@@ -421,24 +431,45 @@ adminProductPrices.addEventListener('input', (event) => {
   const product = adminDraftProducts.find((item) => item.id === id);
   if (input.dataset.nameId) product.name = input.value;
   if (input.dataset.priceId) {
-    product.price = parseAdminNumber(input.value).value;
-    syncAdminDiscountFields(id, 'price');
+    const value = parseAdminNumber(input.value);
+    if (Number.isFinite(value) && value >= 0) {
+      product.price = value;
+      syncAdminDiscountFields(id, 'price');
+    }
   }
   if (input.dataset.discountId) {
-    const parsed = parseAdminNumber(input.value);
-    product.discountRate = normalizeDiscountRate(parsed.value);
-    product.salePriceOverride = null;
-    syncAdminDiscountFields(id, 'rate');
+    const value = parseAdminNumber(input.value);
+    if (Number.isFinite(value) && value >= 0 && value <= 100) {
+      product.discountRate = normalizeDiscountRate(value);
+      product.salePriceOverride = null;
+      syncAdminDiscountFields(id, 'rate');
+    }
   }
   if (input.dataset.salePriceId) {
-    const parsed = parseAdminNumber(input.value);
-    product.discountRate = getRateFromDiscountedPrice(product.price, parsed.value);
-    product.salePriceOverride = parsed.forced && Number.isFinite(parsed.value) && parsed.value >= 0 ? parsed.value : null;
-    syncAdminDiscountFields(id, 'sale');
+    const value = parseAdminNumber(input.value);
+    if (Number.isFinite(value) && value >= 0) {
+      if (hasForcedSalePrice(product)) {
+        product.salePriceOverride = value;
+      } else {
+        product.discountRate = getRateFromDiscountedPrice(product.price, value);
+      }
+      syncAdminDiscountFields(id, 'sale');
+    }
   }
 });
 
 adminProductPrices.addEventListener('click', (event) => {
+  const forceButton = event.target.closest('[data-force-price-id]');
+  if (forceButton) {
+    const product = adminDraftProducts.find((item) => item.id === forceButton.dataset.forcePriceId);
+    if (!product) return;
+    product.salePriceOverride = hasForcedSalePrice(product) ? null : getDiscountedPrice(product);
+    renderAdminSettings();
+    adminSettingsStatus.textContent = hasForcedSalePrice(product)
+      ? '고정 가격을 직접 수정할 수 있습니다. 할인율은 자동으로 바뀌지 않습니다.'
+      : '가격 고정을 해제했습니다. 할인가와 할인율이 다시 연동됩니다.';
+    return;
+  }
   const button = event.target.closest('[data-remove-id]');
   if (!button) return;
   const index = adminDraftProducts.findIndex((product) => product.id === button.dataset.removeId);
