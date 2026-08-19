@@ -32,7 +32,8 @@ function isValidProduct(product) {
     && product.price >= 0
     && Number.isFinite(product.discountRate)
     && product.discountRate >= 0
-    && product.discountRate <= 100;
+    && product.discountRate <= 100
+    && (product.salePriceOverride === undefined || product.salePriceOverride === null || (Number.isFinite(product.salePriceOverride) && product.salePriceOverride >= 0));
 }
 
 function verifySession(req, secret) {
@@ -93,6 +94,7 @@ export default async function handler(req, res) {
     name: product.name.trim(),
     price: product.price,
     discountRate: Math.round(product.discountRate * 100) / 100,
+    salePriceOverride: product.salePriceOverride === null || product.salePriceOverride === undefined ? null : product.salePriceOverride,
   }));
   try {
     await put(PRODUCT_PATH, JSON.stringify({ products: normalizedProducts, updatedAt: new Date().toISOString() }), {
