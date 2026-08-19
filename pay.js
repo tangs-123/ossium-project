@@ -55,6 +55,7 @@ let deletedDraftProduct = null;
 
 const formatPrice = (price) => `₩${currency.format(price)}`;
 const getDiscountRate = (product) => Math.min(100, Math.max(0, Number(product.discountRate) || 0));
+const normalizeDiscountRate = (rate) => Math.round(getDiscountRate({ discountRate: rate }) * 100) / 100;
 const getSubtotal = () => products.reduce((sum, product) => sum + product.price * quantities[product.id], 0);
 const getDiscount = () => products.reduce((sum, product) => sum + Math.round(product.price * quantities[product.id] * (getDiscountRate(product) / 100)), 0);
 const getTotal = () => {
@@ -157,7 +158,7 @@ function applyProducts(nextProducts) {
     id: product.id,
     name: product.name.trim(),
     price: Math.round(Number(product.price)),
-    discountRate: Math.round(getDiscountRate(product)),
+    discountRate: normalizeDiscountRate(product.discountRate),
   })));
   Object.keys(quantities).forEach((id) => { if (!products.some((product) => product.id === id)) delete quantities[id]; });
   products.forEach((product) => { if (!(product.id in quantities)) quantities[product.id] = 0; });
@@ -319,8 +320,8 @@ function renderAdminSettings() {
     const price = document.createElement('input');
     price.type = 'number';
     price.min = '0';
-    price.step = '100';
-    price.inputMode = 'numeric';
+    price.step = '1';
+    price.inputMode = 'decimal';
     price.value = String(product.price);
     price.placeholder = '가격';
     price.dataset.priceId = product.id;
@@ -329,8 +330,8 @@ function renderAdminSettings() {
     discount.type = 'number';
     discount.min = '0';
     discount.max = '100';
-    discount.step = '1';
-    discount.inputMode = 'numeric';
+    discount.step = '0.1';
+    discount.inputMode = 'decimal';
     discount.value = String(getDiscountRate(product));
     discount.placeholder = '할인 %';
     discount.dataset.discountId = product.id;
@@ -442,7 +443,7 @@ adminSettings.addEventListener('submit', async (event) => {
     ...product,
     name: product.name.trim(),
     price: Math.round(product.price),
-    discountRate: Math.round(product.discountRate),
+    discountRate: normalizeDiscountRate(product.discountRate),
   }));
   const submitButton = adminSettings.querySelector('[type="submit"]');
   submitButton.disabled = true;

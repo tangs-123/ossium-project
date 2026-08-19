@@ -30,7 +30,7 @@ function isValidProduct(product) {
     && product.name.trim().length <= 80
     && Number.isInteger(product.price)
     && product.price >= 0
-    && Number.isInteger(product.discountRate)
+    && Number.isFinite(product.discountRate)
     && product.discountRate >= 0
     && product.discountRate <= 100;
 }
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     id: product.id,
     name: product.name.trim(),
     price: product.price,
-    discountRate: product.discountRate,
+    discountRate: Math.round(product.discountRate * 100) / 100,
   }));
   try {
     await put(PRODUCT_PATH, JSON.stringify({ products: normalizedProducts, updatedAt: new Date().toISOString() }), {
