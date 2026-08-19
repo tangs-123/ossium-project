@@ -336,7 +336,7 @@ function renderAdminSettings() {
     discount.type = 'number';
     discount.min = '0';
     discount.max = '100';
-    discount.step = '0.1';
+    discount.step = '0.01';
     discount.inputMode = 'decimal';
     discount.value = String(getDiscountRate(product));
     discount.placeholder = '할인 %';
