@@ -359,7 +359,22 @@ function renderAdminSettings() {
     forcePrice.setAttribute('aria-pressed', String(hasForcedSalePrice(product)));
     const remove = makeButton('삭제', { removeId: product.id });
     remove.setAttribute('aria-label', `${product.name} 삭제`);
-    field.append(name, price, discount, discountedPrice, forcePrice, remove);
+    const valueField = (label, input) => {
+      const wrapper = document.createElement('label');
+      wrapper.className = 'admin-value-field';
+      const text = document.createElement('span');
+      text.textContent = label;
+      wrapper.append(text, input);
+      return wrapper;
+    };
+    field.append(
+      name,
+      valueField('정가', price),
+      valueField('할인율', discount),
+      valueField('할인가', discountedPrice),
+      forcePrice,
+      remove,
+    );
     return field;
   }));
 }
