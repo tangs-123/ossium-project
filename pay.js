@@ -56,6 +56,12 @@ let deletedDraftProduct = null;
 const formatPrice = (price) => `₩${currency.format(price)}`;
 const getDiscountRate = (product) => Math.min(100, Math.max(0, Number(product.discountRate) || 0));
 const normalizeDiscountRate = (rate) => Math.round(getDiscountRate({ discountRate: rate }) * 100) / 100;
+const getDiscountedPrice = (product) => Math.round(product.price * (1 - getDiscountRate(product) / 100) * 100) / 100;
+const getRateFromDiscountedPrice = (price, discountedPrice) => {
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(discountedPrice)) return 0;
+  return normalizeDiscountRate((1 - discountedPrice / price) * 100);
+};
+const formatEditorNumber = (value) => String(Math.round(Number(value) * 100) / 100);
 const getSubtotal = () => products.reduce((sum, product) => sum + product.price * quantities[product.id], 0);
 const getDiscount = () => products.reduce((sum, product) => sum + Math.round(product.price * quantities[product.id] * (getDiscountRate(product) / 100)), 0);
 const getTotal = () => {
@@ -336,9 +342,18 @@ function renderAdminSettings() {
     discount.placeholder = '할인 %';
     discount.dataset.discountId = product.id;
     discount.setAttribute('aria-label', `${product.name} 할인율`);
+    const discountedPrice = document.createElement('input');
+    discountedPrice.type = 'number';
+    discountedPrice.min = '0';
+    discountedPrice.step = '0.01';
+    discountedPrice.inputMode = 'decimal';
+    discountedPrice.value = formatEditorNumber(getDiscountedPrice(product));
+    discountedPrice.placeholder = '할인가';
+    discountedPrice.dataset.salePriceId = product.id;
+    discountedPrice.setAttribute('aria-label', `${product.name} 할인가`);
     const remove = makeButton('삭제', { removeId: product.id });
     remove.setAttribute('aria-label', `${product.name} 삭제`);
-    field.append(name, price, discount, remove);
+    field.append(name, price, discount, discountedPrice, remove);
     return field;
   }));
 }
@@ -388,14 +403,33 @@ adminAuth.addEventListener('submit', async (event) => {
   }
 });
 
+function syncAdminDiscountFields(id, source) {
+  const product = adminDraftProducts.find((item) => item.id === id);
+  if (!product) return;
+  const rateInput = adminProductPrices.querySelector(`[data-discount-id="${id}"]`);
+  const saleInput = adminProductPrices.querySelector(`[data-sale-price-id="${id}"]`);
+  if (source !== 'rate' && rateInput) rateInput.value = String(normalizeDiscountRate(product.discountRate));
+  if (source !== 'sale' && saleInput) saleInput.value = formatEditorNumber(getDiscountedPrice(product));
+}
+
 adminProductPrices.addEventListener('input', (event) => {
   const input = event.target;
-  const id = input.dataset.nameId || input.dataset.priceId || input.dataset.discountId;
+  const id = input.dataset.nameId || input.dataset.priceId || input.dataset.discountId || input.dataset.salePriceId;
   if (!id) return;
   const product = adminDraftProducts.find((item) => item.id === id);
   if (input.dataset.nameId) product.name = input.value;
-  if (input.dataset.priceId) product.price = Number(input.value);
-  if (input.dataset.discountId) product.discountRate = Number(input.value);
+  if (input.dataset.priceId) {
+    product.price = Number(input.value);
+    syncAdminDiscountFields(id, 'price');
+  }
+  if (input.dataset.discountId) {
+    product.discountRate = normalizeDiscountRate(input.value);
+    syncAdminDiscountFields(id, 'rate');
+  }
+  if (input.dataset.salePriceId) {
+    product.discountRate = getRateFromDiscountedPrice(product.price, Number(input.value));
+    syncAdminDiscountFields(id, 'sale');
+  }
 });
 
 adminProductPrices.addEventListener('click', (event) => {
