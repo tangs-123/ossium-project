@@ -84,7 +84,7 @@ button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .admin-product-field{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid var(--pay-line)}
 .admin-product-field input[data-name-id]{grid-column:1/-1}.admin-product-field input[data-discount-id]{padding-inline:6px;text-align:center}
 .admin-product-field button{min-height:48px;padding:0;border:1px solid var(--pay-line);background:transparent;color:var(--pay-muted);font-size:10px;font-weight:750;cursor:pointer}
-.admin-product-field .force-price-button{grid-column:span 2;border-color:var(--pay-blue);color:var(--pay-blue)}.admin-product-field .force-price-button.is-active{border-color:var(--pay-yellow);background:rgba(232,214,92,.08);color:var(--pay-yellow)}.admin-product-field input:disabled{opacity:.45;cursor:not-allowed}
+.admin-product-field .force-price-button{grid-column:span 2;border-color:var(--pay-blue);color:var(--pay-blue)}.admin-product-field .force-price-button.is-active{border-color:var(--pay-yellow);background:rgba(232,214,92,.08);color:var(--pay-yellow)}
 .admin-note{margin:12px 0 0;color:var(--pay-muted);font-size:12px}
 
 .product-row button:focus-visible,.reset-button:focus-visible,.admin-trigger:focus-visible,.action-button:focus-visible,.transfer-option:focus-visible,.sheet-close:focus-visible,.admin-add-product:focus-visible,.admin-product-field input:focus-visible,.admin-product-field button:focus-visible,.admin-auth input:focus-visible{outline:2px solid var(--pay-yellow);outline-offset:3px}

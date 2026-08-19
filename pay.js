@@ -341,7 +341,6 @@ function renderAdminSettings() {
     discount.step = '0.01';
     discount.inputMode = 'decimal';
     discount.value = String(getDiscountRate(product));
-    discount.disabled = hasForcedSalePrice(product);
     discount.placeholder = '할인 %';
     discount.dataset.discountId = product.id;
     discount.setAttribute('aria-label', `${product.name} 할인율`);
@@ -441,7 +440,10 @@ adminProductPrices.addEventListener('input', (event) => {
     const value = parseAdminNumber(input.value);
     if (Number.isFinite(value) && value >= 0 && value <= 100) {
       product.discountRate = normalizeDiscountRate(value);
-      product.salePriceOverride = null;
+      // When price lock is enabled, the operator controls the sale price and
+      // discount rate independently. Outside that mode, discount updates keep
+      // the normal automatic sale-price calculation.
+      if (!hasForcedSalePrice(product)) product.salePriceOverride = null;
       syncAdminDiscountFields(id, 'rate');
     }
   }
